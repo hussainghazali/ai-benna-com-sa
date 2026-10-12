@@ -8,19 +8,19 @@
     --foreground: 240 10% 12%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 12%;
-    --primary: 246 84% 61%;
+    --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 25%;
     --muted: 240 5% 96%;
     --muted-foreground: 240 4% 46%;
-    --accent: 240 5% 96%;
+    --accent: 20 100% 94%;
     --accent-foreground: 240 6% 25%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 246 84% 61%;
+    --ring: 24 100% 50%;
     --radius: 0.5rem;
   }
 }
@@ -33,3 +33,34 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* ===== Alibaba Design System tokens ===== */
+:root {
+  --ali-orange-500: #FF6600;
+  --ali-orange-600: #E65C00;
+  --ali-orange-100: #FFF0E5;
+  --ali-red-700:    #CC3D00;
+  --ali-ink-900:    #222222;
+  --ali-ink-700:    #444444;
+  --ali-ink-500:    #666666;
+  --ali-ink-400:    #999999;
+  --ali-line-300:   #DDDDDD;
+  --ali-line-200:   #EEEEEE;
+  --ali-bg-100:     #F4F4F4;
+  --ali-bg-0:       #FFFFFF;
+  --ali-success-600:#00A870;
+  --ali-warning-500:#FAAD14;
+  --ali-danger-600: #D93026;
+  --ali-info-600:   #1677FF;
+  --ali-star:       #FFB400;
+  --ali-ai-gradient: linear-gradient(90deg, #6A5CFF 0%, #B14DFF 50%, #FF6A3D 100%);
+  --ali-ai-tint:    #F5F0FF;
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 8px;
+  --radius-lg: 12px; --radius-xl: 16px; --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-2: 0 4px 12px rgba(0,0,0,.08);
+  --shadow-3: 0 12px 32px rgba(0,0,0,.16);
+  --ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms;
+}
+

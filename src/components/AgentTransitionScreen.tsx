@@ -54,7 +54,7 @@ const INITIAL_STEPS: Step[] = [
 
 const statusRing: Record<StepStatus, string> = {
   pending: "bg-secondary text-muted-foreground ring-border/50",
-  active: "bg-[#7f7dfc]/15 text-[#533afd] ring-[#7f7dfc]/30",
+  active: "bg-[#7f7dfc]/15 text-[#FF6600] ring-[#7f7dfc]/30",
   success: "bg-emerald-100 text-emerald-600 ring-emerald-500/20",
 };
 
@@ -111,7 +111,7 @@ export function AgentTransitionScreen({ onSkip }: { onSkip?: () => void }) {
         />
 
         <div className="relative z-10 flex items-center gap-3 pb-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#7f7dfc]/10 text-[#533afd]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#7f7dfc]/10 text-[#FF6600]">
             {hasActive ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : allSuccess ? (
