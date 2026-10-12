@@ -35,7 +35,7 @@ export const authApi = {
         email: email.trim().toLowerCase(),
         password,
         deviceType: 1,
-        origin: "benna-assistant",
+        origin: "benna-website",
       }),
     });
     if (!res.success || !res.data) throw new Error(res.message || "Login failed");
@@ -45,7 +45,14 @@ export const authApi = {
   register: async (params: { name: string; email: string; phone?: string; password: string }) => {
     const res = await apiClient<Envelope<AuthPayload>>("/users/auth/registration", {
       method: "POST",
-      body: JSON.stringify({ ...params, email: params.email.trim().toLowerCase() }),
+      body: JSON.stringify({
+        name: params.name,
+        email: params.email.trim().toLowerCase(),
+        phoneNumber: params.phone,
+        password: params.password,
+        deviceType: 1,
+        origin: "benna-website",
+      }),
     });
     if (!res.success || !res.data) throw new Error(res.message || "Registration failed");
     return res.data;

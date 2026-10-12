@@ -32,6 +32,7 @@ const AuthPage = ({ mode: initialMode }: { mode: "login" | "register" }) => {
     location.pathname === "/register" ? "register" : initialMode,
   );
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -61,7 +62,7 @@ const AuthPage = ({ mode: initialMode }: { mode: "login" | "register" }) => {
     setError(null);
     try {
       if (mode === "login") await login(email, password);
-      else await register({ name: name || "User", email, password });
+      else await register({ name: name || "User", email, phone, password });
       navigate(redirectTarget, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -108,6 +109,18 @@ const AuthPage = ({ mode: initialMode }: { mode: "login" | "register" }) => {
                 autoComplete="name"
               />
             ) : null}
+            {mode === "register" ? (
+              <input
+                className={inputCls}
+                type="tel"
+                required
+                placeholder={t("Phone number", "رقم الهاتف")}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                autoComplete="tel"
+                dir="ltr"
+              />
+            ) : null}
             <input
               className={inputCls}
               type="email"
@@ -121,7 +134,7 @@ const AuthPage = ({ mode: initialMode }: { mode: "login" | "register" }) => {
               className={inputCls}
               type="password"
               required
-              minLength={6}
+              minLength={8}
               placeholder={t("Password", "كلمة المرور")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
