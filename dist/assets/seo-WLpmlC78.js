@@ -1,0 +1,1 @@
+import{r as a}from"./index-BsPOadNx.js";const n=({title:o,description:t})=>{a.useEffect(()=>{if(document.title=o,t){let e=document.querySelector('meta[name="description"]');e||(e=document.createElement("meta"),e.name="description",document.head.appendChild(e)),e.content=t}},[o,t])};export{n as u};

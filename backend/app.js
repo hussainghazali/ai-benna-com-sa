@@ -13,7 +13,7 @@ if (!process.env.JWT_SECRET) {
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "2mb" }));
 
-app.use("/api/users", require("./routes/users"));
+app.use("/api/users", require("./middleware/publicApiKey"), require("./routes/users"));
 
 app.get("/health", (req, res) =>
   res.json({ status: "ok", uptime: process.uptime() }),
