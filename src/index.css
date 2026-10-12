@@ -8,7 +8,7 @@
     --foreground: 240 10% 12%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 12%;
-    --primary: 24 100% 50%;
+    --primary: 24 100% 49%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 25%;
@@ -20,7 +20,7 @@
     --destructive-foreground: 0 0% 100%;
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 24 100% 50%;
+    --ring: 24 100% 49%;
     --radius: 0.5rem;
   }
 }
@@ -36,8 +36,8 @@
 
 /* ===== Alibaba Design System tokens ===== */
 :root {
-  --ali-orange-500: #FF6600;
-  --ali-orange-600: #E65C00;
+  --ali-orange-500: #FA6400;
+  --ali-orange-600: #E85A00;
   --ali-orange-100: #FFF0E5;
   --ali-red-700:    #CC3D00;
   --ali-ink-900:    #222222;

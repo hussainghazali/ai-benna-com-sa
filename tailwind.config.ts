@@ -5,6 +5,19 @@ export default {
   theme: {
     extend: {
       colors: {
+        ali: {
+          orange: { 100: "#FFF0E5", 500: "#FA6400", 600: "#E85A00" },
+          red: { 700: "#CC3D00" },
+          ink: { 900: "#222222", 700: "#444444", 500: "#666666", 400: "#999999" },
+          line: { 200: "#EEEEEE", 300: "#DDDDDD" },
+          bg: { 0: "#FFFFFF", 100: "#F4F4F4" },
+          success: "#00A870",
+          warning: "#FAAD14",
+          danger: "#D93026",
+          info: "#1677FF",
+          star: "#FFB400",
+          "ai-tint": "#F5F0FF",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

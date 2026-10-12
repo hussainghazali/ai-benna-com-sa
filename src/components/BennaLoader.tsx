@@ -53,12 +53,12 @@ export default function BennaLoader({
 
         {/* Right */}
         <div className='side-wrapper right'>
-          <div className='face bg-purple-500/10 border-2 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]' />
+          <div className='face bg-ali-orange-500/10 border-2 border-ali-orange-500 shadow-[0_0_15px_rgba(250,100,0,0.4)]' />
         </div>
 
         {/* Left */}
         <div className='side-wrapper left'>
-          <div className='face bg-purple-500/10 border-2 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.4)]' />
+          <div className='face bg-ali-orange-500/10 border-2 border-ali-orange-500 shadow-[0_0_15px_rgba(250,100,0,0.4)]' />
         </div>
 
         {/* Top */}
