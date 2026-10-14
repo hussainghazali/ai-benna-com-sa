@@ -8,6 +8,7 @@ import SideActionRail from "@/components/sections/SideActionRail";
 
 const AssistantPage = lazy(() => import("@/pages/AssistantPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
+const WelcomePage = lazy(() => import("@/pages/WelcomePage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 
 const Fallback = () => (
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/assistant" element={<AssistantPage />}>
                 <Route path=":threadId" element={null} />
               </Route>
+              <Route path="/welcome" element={<WelcomePage />} />
               <Route path="/login" element={<AuthPage mode="login" />} />
               <Route path="/register" element={<AuthPage mode="register" />} />
               <Route path="/product/:slug" element={<ProductDetailPage />} />

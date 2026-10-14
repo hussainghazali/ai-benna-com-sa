@@ -75,10 +75,14 @@ const AuthPage = ({ mode: initialMode }: { mode: "login" | "register" }) => {
     "w-full rounded-[6px] border border-border bg-background px-3 py-2.5 text-[14px] text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/60";
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-white">
+      {/* Same peach-glow backdrop as /welcome */}
+      <div className="pointer-events-none absolute -left-48 top-0 h-[560px] w-[560px] rounded-full bg-[#FFD7B0]/70 blur-3xl" />
+      <div className="pointer-events-none absolute -right-56 top-16 h-[680px] w-[680px] rounded-full bg-[#FFC294]/60 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-24 h-[300px] w-[300px] rounded-full bg-[#FFE3CC]/60 blur-3xl" />
       <Header />
-      <main className="flex flex-1 items-center justify-center px-4 py-10">
-        <div className="w-full max-w-sm rounded-[8px] border border-border bg-card p-6 shadow-sm">
+      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-10">
+        <div className="w-full max-w-sm rounded-[8px] border border-ali-line-300 bg-white/90 p-6 shadow-lg backdrop-blur-sm">
           <div className="mb-6 text-center">
             <Sparkles className="mx-auto h-7 w-7 text-primary" />
             <h1 className="mt-3 text-[20px] font-medium text-foreground">
