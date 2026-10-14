@@ -99,7 +99,7 @@ const AssistantPage = () => {
       <Header />
 
       <main className="flex-1">
-        <div className="w-full px-4 py-6 md:px-8">
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-6 lg:px-6 xl:px-8">
           <header className="mb-5">
             <h1 className="flex items-center gap-2 text-[24px] font-light text-foreground">
               <Sparkles className="h-5 w-5 text-primary" />
