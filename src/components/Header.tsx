@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const { items } = useCart();
+  const { items, setIsCartOpen } = useCart();
   const { isRTL, t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
 
@@ -51,14 +51,14 @@ const Header = () => {
             {isRTL ? "English–SAR" : "العربية–ر.س"}
           </button>
 
-          <span className="relative cursor-pointer hover:text-ali-ink-900" title={t("Cart", "السلة")}>
+          <button type="button" onClick={() => setIsCartOpen(true)} className="relative hover:text-ali-ink-900" title={t("Cart", "السلة")}>
             <ShoppingCart className="h-5 w-5" />
             {items.length > 0 && (
               <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ali-danger text-[10px] font-bold text-white">
                 {items.length}
               </span>
             )}
-          </span>
+          </button>
 
           <MessageCircle className="h-5 w-5 cursor-pointer hover:text-ali-ink-900" />
           <Package className="h-5 w-5 cursor-pointer hover:text-ali-ink-900" />

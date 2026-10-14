@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext";
 import AssistantBubble from "@/components/assistant/AssistantBubble";
 import SideActionRail from "@/components/sections/SideActionRail";
+import CartDrawer from "@/components/CartDrawer";
 
 const AssistantPage = lazy(() => import("@/pages/AssistantPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
@@ -38,6 +39,7 @@ const App = () => (
           </Suspense>
           <AssistantBubble />
           <SideActionRail />
+              <CartDrawer />
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
