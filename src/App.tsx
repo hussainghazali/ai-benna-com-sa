@@ -4,6 +4,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext";
 import AssistantBubble from "@/components/assistant/AssistantBubble";
+import SideActionRail from "@/components/sections/SideActionRail";
 
 const AssistantPage = lazy(() => import("@/pages/AssistantPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
@@ -34,6 +35,7 @@ const App = () => (
             </Routes>
           </Suspense>
           <AssistantBubble />
+          <SideActionRail />
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
