@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ComingSoonModal from "@/components/ComingSoonModal";
 import { Camera } from "lucide-react";
 import { Facebook, Twitter, Instagram, Youtube, Linkedin } from "lucide-react";
@@ -276,25 +276,21 @@ const Footer = () => {
               <ul className="space-y-1.5 sm:space-y-2">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
-                    {link.href.startsWith("/") ? (
-                      <Link
-                        to={link.href}
-                        className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors truncate block"
-                      >
-                        {getText(link.name)}
-                      </Link>
-                    ) : (
-                      <a
-                        href={
-                          link.href.startsWith("https://vendor.benna.com.sa/en/")
-                            ? link.href.replace("/en/", `/${language}/`)
-                            : link.href
-                        }
-                        className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors truncate block"
-                      >
-                        {getText(link.name)}
-                      </a>
-                    )}
+                    {(() => {
+                      const href = link.href.startsWith("/")
+                        ? `https://store.benna.com.sa${link.href}`
+                        : link.href.startsWith("https://vendor.benna.com.sa/en/")
+                          ? link.href.replace("/en/", `/${language}/`)
+                          : link.href;
+                      return (
+                        <a
+                          href={href}
+                          className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors truncate block"
+                        >
+                          {getText(link.name)}
+                        </a>
+                      );
+                    })()}
                   </li>
                 ))}
               </ul>
