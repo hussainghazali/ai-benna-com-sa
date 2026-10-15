@@ -14,13 +14,17 @@
   },
   "dependencies": {
     "@emran-alhaddad/saudi-riyal-font": "^1.0.4",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "firebase": "^12.9.0",
     "framer-motion": "^11.11.0",
     "lucide-react": "^0.453.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
+    "sonner": "^1.7.4",
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {

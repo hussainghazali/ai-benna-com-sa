@@ -1,3 +1,4 @@
+import { CHAT_URL, STORE_URL } from "@/lib/store-url";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -35,14 +36,14 @@ const SideActionRail = () => {
         aria-label={isAr ? "إجراءات سريعة" : "Quick actions"}
         className="fixed bottom-24 left-3 z-[60] hidden w-[68px] flex-col divide-y divide-ali-line-200 overflow-hidden rounded-xl border border-ali-line-200 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] xl:flex"
       >
-        <Link
-          to="/chat"
+        <a
+          href={CHAT_URL}
           className={itemClass}
           aria-label={isAr ? "الرسائل" : "Messenger"}
         >
           <MessageSquare className="h-5 w-5" aria-hidden="true" />
           <span className={labelClass}>{isAr ? "الرسائل" : "Messenger"}</span>
-        </Link>
+        </a>
 
         <Link
           to="/assistant"
@@ -75,14 +76,14 @@ const SideActionRail = () => {
           <span className={labelClass}>WhatsApp</span>
         </a>
 
-        <Link
-          to="/build-project"
+        <a
+          href={`${STORE_URL}/build-project`}
           className={itemClass}
           aria-label="Benna BOQ"
         >
           <Wand2 className="h-5 w-5" aria-hidden="true" />
           <span className={labelClass}>{isAr ? "بنّا BOQ" : "Benna BOQ"}</span>
-        </Link>
+        </a>
 
         <button
           type="button"
@@ -96,12 +97,12 @@ const SideActionRail = () => {
           </span>
         </button>
 
-        <Link to="/rfq" className={itemClass} aria-label="Benna RFQ">
+        <a href={`${STORE_URL}/rfq`} className={itemClass} aria-label="Benna RFQ">
           <FileText className="h-5 w-5" aria-hidden="true" />
           <span className={labelClass}>
             {isAr ? "بنّا RFQ" : "Benna RFQ"}
           </span>
-        </Link>
+        </a>
 
         <button
           type="button"

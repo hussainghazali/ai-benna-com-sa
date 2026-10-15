@@ -1,7 +1,8 @@
 // src/pages/AssistantPage.tsx
 // Full-page assistant workspace with conversation history.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useMatch, useNavigate } from "react-router-dom";
+import { useMatch, useNavigate } from "react-router-dom";
+import { STORE_URL } from "@/lib/store-url";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AssistantChat from "@/components/assistant/AssistantChat";
@@ -82,6 +83,12 @@ const AssistantPage = () => {
   }, [showIntro, dismissIntro]);
 
 
+  const startNewConversation = useCallback(() => {
+    setNewChatKey((k) => k + 1);
+    if (threadId) navigate("/assistant");
+    void loadThreads();
+  }, [threadId, navigate, loadThreads]);
+
   const remove = async (id: string) => {
     setThreads((prev) => prev.filter((t) => t.threadId !== id));
     if (id === threadId) navigate("/assistant", { replace: true });
@@ -93,85 +100,112 @@ const AssistantPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-ali-bg-100">
       {showIntro && !threadId && <AgentTransitionScreen onSkip={dismissIntro} />}
 
       <Header />
 
-      {/* ── Hero Band — full-bleed peach bg, centered content (matches BOQ page) ── */}
-      <div className="bg-ali-orange-100/60">
-        <div className="mx-auto w-full max-w-[1400px] px-4 lg:px-6 xl:px-8">
-          <div className="py-8 sm:py-10">
-            <h1 className="text-[26px] sm:text-[30px] font-bold leading-tight tracking-tight text-ali-ink-900">
+      <main className="flex-1">
+        {/* ── Hero band (same as RFQ / BOQ pages) ── */}
+        <section
+          className="border-b border-ali-line-200"
+          style={{
+            background:
+              "linear-gradient(90deg, #FFFFFF 0%, #FFF9F4 25%, #FFF0E5 50%, #FFF9F4 75%, #FFFFFF 100%)",
+            backgroundSize: "200% 100%",
+            animation: "gradient-shift 12s ease-in-out infinite",
+          }}
+        >
+          <div className="mx-auto w-full max-w-[1400px] px-4 lg:px-6 xl:px-8 py-6 md:py-8">
+            <h1 className="max-w-2xl text-3xl lg:text-4xl font-semibold tracking-tight text-ali-ink-900">
               {isAr ? (
-                <>بنّة <span className="text-ali-orange-500">رقم ١ لمساعد التوريد الذكي</span></>
+                <>
+                  مساعد المشتريات{" "}
+                  <span className="text-ali-orange-500">بالذكاء الاصطناعي</span>
+                </>
               ) : (
-                <>Benna's <span className="text-ali-orange-500">#1 AI sourcing assistant</span></>
+                <>
+                  Benna's{" "}
+                  <span className="text-ali-orange-500">
+                    #1 AI sourcing assistant
+                  </span>
+                </>
               )}
             </h1>
-            <p className="mt-1.5 text-[14px] text-ali-ink-500">
+            <p className="mt-2 text-sm text-ali-ink-500">
               {isAr
-                ? "صِف مشروعك · احصل على منتجات مطابقة · أضفها مباشرة إلى سلتك"
+                ? "صِف مشروعك أو منتجك · احصل على منتجات مطابقة · أضفها مباشرة إلى سلتك"
                 : "Describe your project · Get matching products · Add straight to your cart"}
             </p>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setNewChatKey((k) => k + 1);
-                  if (threadId) navigate("/assistant");
-                  void loadThreads();
-                }}
-                className="inline-flex h-10 items-center gap-2 rounded-full bg-ali-orange-500 px-5 text-[13px] font-semibold text-white transition-colors hover:bg-ali-orange-600"
-              >
-                <Sparkles className="h-4 w-4" />
-                {isAr ? "محادثة جديدة" : "Start a new conversation"}
-              </button>
-              <a
-                href="https://store.benna.com.sa/build-project"
-                className="inline-flex h-10 items-center rounded-full border border-ali-ink-900 bg-white px-5 text-[13px] font-semibold text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
-              >
-                {isAr ? "منشئ قوائم الكميات" : "AI BOQ generator"}
-              </a>
-              <a
-                href="https://store.benna.com.sa/rfq"
-                className="text-[13px] font-medium text-ali-ink-900 hover:text-ali-orange-500"
-              >
-                {isAr ? "سوق طلبات العروض" : "RFQ marketplace"}
-              </a>
+
+            {/* CTAs, then stats row */}
+            <div className="mt-6 flex flex-col gap-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={startNewConversation}
+                  className="inline-flex items-center rounded-full bg-ali-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-ali-orange-600"
+                >
+                  <Sparkles className="h-4 w-4 me-1.5" aria-hidden="true" />
+                  {isAr ? "ابدأ محادثة جديدة" : "Start a new conversation"}
+                </button>
+                <a
+                  href={`${STORE_URL}/build-project`}
+                  className="inline-flex items-center rounded-full border border-ali-ink-900 px-5 py-2.5 text-sm font-semibold text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
+                >
+                  {isAr ? "مولّد BOQ" : "AI BOQ generator"}
+                </a>
+                <a
+                  href={`${STORE_URL}/rfqs`}
+                  className="text-sm text-ali-ink-700 underline decoration-ali-line-300 underline-offset-4 transition-colors hover:text-ali-orange-500"
+                >
+                  {isAr ? "سوق طلبات التسعير" : "RFQ marketplace"}
+                </a>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-ali-line-200 pt-5">
+                {[
+                  {
+                    big: isAr ? "+184 ألف" : "184K+",
+                    label: isAr ? "منتج في الكتالوج" : "Products in catalog",
+                  },
+                  {
+                    big: isAr ? "+1,085" : "1,085+",
+                    label: isAr ? "فئة مغطاة" : "Categories covered",
+                  },
+                  {
+                    big: isAr ? "نقرة واحدة" : "1-click",
+                    label: isAr ? "إضافة للسلة" : "Add to cart",
+                  },
+                  {
+                    big: isAr ? "فوري" : "Instant",
+                    label: isAr ? "مطابقة بالذكاء الاصطناعي" : "AI matching",
+                  },
+                  {
+                    big: "24/7",
+                    label: isAr ? "متاح دائمًا" : "Always available",
+                  },
+                ].map(({ big, label }) => (
+                  <div key={label} className="flex items-baseline gap-2">
+                    <p className="text-2xl font-medium tracking-tighter text-ali-ink-900 md:text-3xl">
+                      {big}
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-ali-ink-500">
+                      {label}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* Stats row — inside the same band */}
-          <div className="border-t border-ali-ink-900/10 py-4">
-            <div className="flex flex-wrap items-center justify-center sm:justify-between gap-x-8 gap-y-2">
-              {[
-                { v: "184K+", l: isAr ? "منتج في الكتالوج" : "PRODUCTS IN CATALOG" },
-                { v: "1,085+", l: isAr ? "فئة مغطاة" : "CATEGORIES COVERED" },
-                { v: "1-click", l: isAr ? "أضف للسلة" : "ADD TO CART" },
-                { v: "Instant", l: isAr ? "مطابقة ذكية" : "AI MATCHING" },
-                { v: "24/7", l: isAr ? "متاح دائماً" : "ALWAYS AVAILABLE" },
-              ].map((s) => (
-                <div key={s.l} className="flex items-baseline gap-2">
-                  <span className="text-[22px] font-bold text-ali-ink-900">{s.v}</span>
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-ali-ink-500">
-                    {s.l}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <main className="flex-1">
         <div className="mx-auto w-full max-w-[1400px] px-4 py-6 lg:px-6 xl:px-8">
-
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
             {/* History */}
             <aside className="order-2 lg:order-1">
-              <div className="rounded-[6px] border border-border bg-card">
-                <div className="border-b border-border px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="rounded-xl border border-ali-line-200 bg-white shadow-card">
+                <div className="border-b border-ali-line-200 px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-ali-ink-500">
                   {isAr ? "المحادثات" : "Conversations"}
                 </div>
                 <div className="max-h-[420px] overflow-y-auto p-2">
@@ -181,10 +215,10 @@ const AssistantPage = () => {
                       return (
                         <div
                           key={t.threadId}
-                          className={`group flex items-start gap-2 rounded-[4px] px-2 py-2 ${
+                          className={`group flex items-start gap-2 rounded-lg px-2 py-2 ${
                             active
-                              ? "bg-primary/5 ring-1 ring-primary/30"
-                              : "hover:bg-muted"
+                              ? "bg-ali-orange-100 ring-1 ring-ali-orange-500/40"
+                              : "hover:bg-ali-bg-100"
                           }`}
                         >
                           <button
@@ -203,14 +237,14 @@ const AssistantPage = () => {
 
                             <MessageSquare
                               className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
-                                active ? "text-primary" : "text-muted-foreground"
+                                active ? "text-ali-orange-500" : "text-ali-ink-500"
                               }`}
                             />
                             <span className="min-w-0 flex-1">
-                              <span className="block truncate text-[12px] text-foreground">
+                              <span className="block truncate text-[12px] text-ali-ink-900">
                                 {t.title}
                               </span>
-                              <span className="block truncate text-[11px] text-muted-foreground">
+                              <span className="block truncate text-[11px] text-ali-ink-500">
                                 {t.preview}
                               </span>
                             </span>
@@ -221,13 +255,13 @@ const AssistantPage = () => {
                             className="opacity-0 transition-opacity group-hover:opacity-100"
                             aria-label={isAr ? "حذف" : "Delete"}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                            <Trash2 className="h-3.5 w-3.5 text-ali-ink-500 hover:text-destructive" />
                           </button>
                         </div>
                       );
                     })
                   ) : (
-                    <p className="px-2 py-3 text-[12px] text-muted-foreground">
+                    <p className="px-2 py-3 text-[12px] text-ali-ink-500">
                       {isAr ? "لا توجد محادثات بعد." : "No conversations yet."}
                     </p>
                   )}
@@ -237,7 +271,7 @@ const AssistantPage = () => {
 
             {/* Chat */}
             <section className="order-1 lg:order-2">
-              <div className="h-[70vh] min-h-[520px] overflow-hidden rounded-[6px] border border-border bg-background">
+              <div className="h-[70vh] min-h-[520px] overflow-hidden rounded-xl border border-ali-line-200 bg-white shadow-card">
                 <AssistantChat
                   key={
                     threadId && !ownThreadsRef.current.has(threadId)
@@ -257,7 +291,6 @@ const AssistantPage = () => {
 
               </div>
             </section>
-
           </div>
         </div>
       </main>

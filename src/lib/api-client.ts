@@ -53,3 +53,11 @@ export function unwrap<T = unknown>(res: unknown): T {
 }
 
 export { getAccessToken };
+
+/**
+ * The standalone site doesn't rotate sessions itself; callers (file uploads in
+ * the vendor chat) treat null as "no refreshed session" and surface the 401.
+ */
+export async function refreshCustomerSession(): Promise<{ token?: string } | null> {
+  return null;
+}
