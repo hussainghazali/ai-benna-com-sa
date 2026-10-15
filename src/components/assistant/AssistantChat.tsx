@@ -140,8 +140,8 @@ const AssistantChat = ({
         </h2>
         <p className="max-w-xs text-[13px] text-ali-ink-500">
           {isAr
-            ? "المساعد الذكي يبحث في كتالوج بنّاء ويضيف المنتجات إلى سلتك مباشرة."
-            : "The AI assistant searches Benna's catalog and adds products straight to your cart."}
+            ? "المساعد الذكي يبحث في كتالوج بنّاء ويعرض لك المنتجات المطابقة مباشرة."
+            : "The AI assistant searches Benna's catalog and shows you matching products straight away."}
         </p>
         <Link
           to="/login"
@@ -174,8 +174,8 @@ const AssistantChat = ({
             </h3>
             <p className="mt-1 max-w-md text-[13px] leading-relaxed text-ali-ink-500">
               {isAr
-                ? "اوصف منتجًا، ماركة، ميزانية، أو مشروعًا كاملًا — وسأجد المنتجات المناسبة من كتالوج بنّاء وأضيفها إلى سلتك."
-                : "Describe a product, a brand, a budget, or a whole project — I'll find matching products from Benna's catalog and add them to your cart."}
+                ? "اوصف منتجًا، ماركة، ميزانية، أو مشروعًا كاملًا — وسأجد المنتجات المناسبة من كتالوج بنّاء وأعرضها لك لتفتحها في متجر بنّة."
+                : "Describe a product, a brand, a budget, or a whole project — I'll find matching products from Benna's catalog and link you to them in the Benna store."}
             </p>
             <div className="mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-2">
               {suggestions.map((s) => (

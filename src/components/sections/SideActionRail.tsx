@@ -1,21 +1,18 @@
 import { CHAT_URL, STORE_URL } from "@/lib/store-url";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUp,
-  Camera,
   FileText,
   MessageSquare,
   Sparkles,
   Wand2,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ComingSoonModal from "@/components/ComingSoonModal";
 
 /**
  * Alibaba-style fixed side rail — a vertical stack of quick actions pinned to
  * the left edge of the viewport: Messenger,
- * Benna AI, WhatsApp, Benna BOQ, Benna Lens (image search), RFQ, Back to Top.
+ * Benna AI, WhatsApp, Benna BOQ, RFQ, Back to Top.
  * Design reference: docs/ALIBABA-DESIGN-SYSTEM.md §4.5 (z-index, drawer tier).
  */
 
@@ -28,8 +25,6 @@ const labelClass =
 const SideActionRail = () => {
   const { language } = useLanguage();
   const isAr = language === "ar";
-  const [lensOpen, setLensOpen] = useState(false);
-
   return (
     <>
       <nav
@@ -85,18 +80,6 @@ const SideActionRail = () => {
           <span className={labelClass}>{isAr ? "بنّا BOQ" : "Benna BOQ"}</span>
         </a>
 
-        <button
-          type="button"
-          onClick={() => setLensOpen(true)}
-          className={itemClass}
-          aria-label={isAr ? "عدسة بنّا" : "Benna Lens"}
-        >
-          <Camera className="h-5 w-5" aria-hidden="true" />
-          <span className={labelClass}>
-            {isAr ? "عدسة بنّا" : "Benna Lens"}
-          </span>
-        </button>
-
         <a href={`${STORE_URL}/rfq`} className={itemClass} aria-label="Benna RFQ">
           <FileText className="h-5 w-5" aria-hidden="true" />
           <span className={labelClass}>
@@ -117,12 +100,6 @@ const SideActionRail = () => {
         </button>
       </nav>
 
-      <ComingSoonModal
-        open={lensOpen}
-        onOpenChange={setLensOpen}
-        featureIcon={Camera}
-        featureName={{ en: "Benna Lens", ar: "عدسة بنّة" }}
-      />
     </>
   );
 };

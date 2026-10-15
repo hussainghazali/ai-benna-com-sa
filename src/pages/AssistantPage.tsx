@@ -49,8 +49,8 @@ const AssistantPage = () => {
       ? "المساعد الذكي للمشتريات | بنّاء"
       : "AI Procurement Assistant | Benna",
     description: isAr
-      ? "اسأل مساعد بنّاء الذكي عن مواد البناء التي تحتاجها، واحصل على منتجات مطابقة من أكثر من 182,000 منتج وأضفها إلى سلتك."
-      : "Ask Benna's AI assistant what materials you need and get matching products from 182,000+ building materials, ready to add to your cart.",
+      ? "اسأل مساعد بنّاء الذكي عن مواد البناء التي تحتاجها، واحصل على منتجات مطابقة من أكثر من 182,000 منتج وافتحها مباشرة في متجر بنّة."
+      : "Ask Benna's AI assistant what materials you need and get matching products from 182,000+ building materials, one click from the Benna store.",
   });
 
   const loadThreads = useCallback(async () => {
@@ -134,8 +134,8 @@ const AssistantPage = () => {
             </h1>
             <p className="mt-2 text-sm text-ali-ink-500">
               {isAr
-                ? "صِف مشروعك أو منتجك · احصل على منتجات مطابقة · أضفها مباشرة إلى سلتك"
-                : "Describe your project · Get matching products · Add straight to your cart"}
+                ? "صِف مشروعك أو منتجك · احصل على منتجات مطابقة · افتحها مباشرة في متجر بنّة"
+                : "Describe your project · Get matching products · Open them in the Benna store"}
             </p>
 
             {/* CTAs, then stats row */}
@@ -175,7 +175,7 @@ const AssistantPage = () => {
                   },
                   {
                     big: isAr ? "نقرة واحدة" : "1-click",
-                    label: isAr ? "إضافة للسلة" : "Add to cart",
+                    label: isAr ? "فتح في المتجر" : "Open in store",
                   },
                   {
                     big: isAr ? "فوري" : "Instant",
