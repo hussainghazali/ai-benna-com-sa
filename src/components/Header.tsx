@@ -49,7 +49,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-40 border-b border-ali-line-200 bg-white">
-      <div className="mx-auto flex h-14 w-full max-w-[1400px] items-center justify-between gap-4 px-4">
+      <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between gap-4 px-4">
         {/* Logo */}
         <Link to="/assistant" className="flex shrink-0 items-center" aria-label="Benna - Home">
           <img
@@ -58,14 +58,14 @@ const Header = () => {
             width={180}
             height={56}
             decoding="async"
-            className="h-9 w-auto"
+            className="h-11 w-auto"
           />
         </Link>
 
         {/* Right utilities */}
-        <div className="relative flex items-center gap-4 text-[13px] text-ali-ink-700" ref={wrapRef}>
+        <div className="relative flex items-center gap-6 text-[14px] text-ali-ink-700" ref={wrapRef}>
           <span className="hidden items-center gap-1 md:flex">
-            <MapPin className="h-4 w-4 text-ali-ink-500" />
+            <MapPin className="h-5 w-5 text-ali-ink-500" />
             {t("Deliver to:", "التوصيل إلى:")}{" "}
             <span className="font-semibold text-ali-ink-900">SA</span>
           </span>
@@ -80,7 +80,7 @@ const Header = () => {
             }}
             className="hidden items-center gap-1 hover:text-ali-ink-900 md:flex"
           >
-            <Globe className="h-4 w-4 text-ali-ink-500" />
+            <Globe className="h-5 w-5 text-ali-ink-500" />
             {isRTL ? "English–SAR" : "العربية–ر.س"}
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
@@ -131,7 +131,7 @@ const Header = () => {
           )}
 
           <button type="button" onClick={() => setIsCartOpen(true)} className="relative hover:text-ali-ink-900" title={t("Cart", "السلة")}>
-            <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="h-6 w-6" />
             {items.length > 0 && (
               <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ali-danger text-[10px] font-bold text-white">
                 {items.length}
@@ -149,7 +149,7 @@ const Header = () => {
             className="relative hover:text-ali-ink-900"
             title={t("Messages", "الرسائل")}
           >
-            <MessageCircle className="h-5 w-5" />
+            <MessageCircle className="h-6 w-6" />
           </button>
 
           {msgOpen && (
@@ -172,7 +172,7 @@ const Header = () => {
             </div>
           )}
 
-          <Package className="h-5 w-5 cursor-pointer hover:text-ali-ink-900" />
+          <Package className="h-6 w-6 cursor-pointer hover:text-ali-ink-900" />
 
           {isAuthenticated ? (
             <button
@@ -184,14 +184,15 @@ const Header = () => {
               className="flex items-center gap-1 font-semibold text-ali-ink-900 hover:text-ali-orange-500"
               title={t("Log out", "تسجيل الخروج")}
             >
-              <User className="h-4 w-4" />
+              <User className="h-5 w-5" />
               {displayName}
             </button>
           ) : (
             <Link
               to="/welcome?redirect=/assistant"
-              className="font-semibold text-ali-ink-900 hover:text-ali-orange-500"
+              className="flex items-center gap-1.5 font-semibold text-ali-ink-900 hover:text-ali-orange-500"
             >
+              <User className="h-5 w-5" />
               {t("Log in", "تسجيل الدخول")}
             </Link>
           )}
