@@ -3,7 +3,7 @@
 // popover / cart / messages popover / orders / Log in on the right.
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Globe, ShoppingCart, MessageCircle, Package, User, ChevronDown, Lock, ShieldCheck, RotateCcw, Truck, ClipboardCheck } from "lucide-react";
+import { MapPin, Globe, ShoppingCart, MessagesSquare, ClipboardList, User, ChevronDown, Lock, ShieldCheck, RotateCcw, Truck, ClipboardCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -70,6 +70,7 @@ const Header = () => {
           <span className="hidden items-center gap-1 md:flex">
             <MapPin className="h-5 w-5 text-ali-ink-500" />
             {t("Deliver to:", "التوصيل إلى:")}{" "}
+            <span className="rounded border border-ali-line-300 px-1 py-0.5 text-[10px] font-medium text-ali-ink-500">SA</span>{" "}
             <span className="font-semibold text-ali-ink-900">SA</span>
           </span>
 
@@ -135,7 +136,7 @@ const Header = () => {
           )}
 
           <button type="button" onClick={() => setIsCartOpen(true)} className="relative hover:text-ali-ink-900" title={t("Cart", "السلة")}>
-            <ShoppingCart className="h-6 w-6" />
+            <ShoppingCart className="h-5 w-5" />
             {items.length > 0 && (
               <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ali-danger text-[10px] font-bold text-white">
                 {items.length}
@@ -154,7 +155,7 @@ const Header = () => {
             className="relative hover:text-ali-ink-900"
             title={t("Messages", "الرسائل")}
           >
-            <MessageCircle className="h-6 w-6" />
+            <MessagesSquare className="h-5 w-5" />
           </button>
 
           {msgOpen && (
@@ -188,7 +189,7 @@ const Header = () => {
             className="relative hover:text-ali-ink-900"
             title={t("Orders", "الطلبات")}
           >
-            <Package className="h-6 w-6" />
+            <ClipboardList className="h-5 w-5" />
           </button>
 
           {ordersOpen && (
