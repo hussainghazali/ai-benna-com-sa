@@ -98,19 +98,74 @@ const AssistantPage = () => {
 
       <Header />
 
+      {/* ── Hero Band — full-bleed peach bg, centered content (matches BOQ page) ── */}
+      <div className="bg-ali-orange-100/60">
+        <div className="mx-auto w-full max-w-[1400px] px-4 lg:px-6 xl:px-8">
+          <div className="py-10 sm:py-14">
+            <h1 className="text-[34px] sm:text-[40px] font-bold leading-tight tracking-tight text-ali-ink-900">
+              {isAr ? (
+                <>بنّة <span className="text-ali-orange-500">رقم ١ لمساعد التوريد الذكي</span></>
+              ) : (
+                <>Benna's <span className="text-ali-orange-500">#1 AI sourcing assistant</span></>
+              )}
+            </h1>
+            <p className="mt-2 text-[15px] sm:text-base text-ali-ink-500">
+              {isAr
+                ? "صِف مشروعك · احصل على منتجات مطابقة · أضفها مباشرة إلى سلتك"
+                : "Describe your project · Get matching products · Add straight to your cart"}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setNewChatKey((k) => k + 1);
+                  if (threadId) navigate("/assistant");
+                  void loadThreads();
+                }}
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-ali-orange-500 px-7 text-[15px] font-semibold text-white transition-colors hover:bg-ali-orange-600"
+              >
+                <Sparkles className="h-4 w-4" />
+                {isAr ? "محادثة جديدة" : "Start a new conversation"}
+              </button>
+              <a
+                href="https://store.benna.com.sa/build-project"
+                className="inline-flex h-11 items-center rounded-full border border-ali-ink-900 bg-white px-7 text-[15px] font-semibold text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
+              >
+                {isAr ? "منشئ قوائم الكميات" : "AI BOQ generator"}
+              </a>
+              <a
+                href="https://store.benna.com.sa/rfq"
+                className="text-[15px] font-medium text-ali-ink-900 hover:text-ali-orange-500"
+              >
+                {isAr ? "سوق طلبات العروض" : "RFQ marketplace"}
+              </a>
+            </div>
+          </div>
+
+          {/* Stats row — inside the same band */}
+          <div className="border-t border-ali-ink-900/10 py-4">
+            <div className="flex flex-wrap items-center justify-center sm:justify-between gap-x-8 gap-y-2">
+              {[
+                { v: "184K+", l: isAr ? "منتج في الكتالوج" : "PRODUCTS IN CATALOG" },
+                { v: "1,085+", l: isAr ? "فئة مغطاة" : "CATEGORIES COVERED" },
+                { v: "1-click", l: isAr ? "أضف للسلة" : "ADD TO CART" },
+                { v: "Instant", l: isAr ? "مطابقة ذكية" : "AI MATCHING" },
+                { v: "24/7", l: isAr ? "متاح دائماً" : "ALWAYS AVAILABLE" },
+              ].map((s) => (
+                <div key={s.l} className="flex items-baseline gap-2">
+                  <span className="text-[26px] font-bold text-ali-ink-900">{s.v}</span>
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-ali-ink-500">
+                    {s.l}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <main className="flex-1">
         <div className="mx-auto w-full max-w-[1400px] px-4 py-6 lg:px-6 xl:px-8">
-          <header className="mb-5">
-            <h1 className="flex items-center gap-2 text-[24px] font-light text-foreground">
-              <Sparkles className="h-5 w-5 text-primary" />
-              {isAr ? "المساعد الذكي للمشتريات" : "AI Procurement Assistant"}
-            </h1>
-            <p className="mt-1 max-w-2xl text-[13px] text-muted-foreground">
-              {isAr
-                ? "اوصف مشروعك أو المنتج الذي تحتاجه، وسيبحث المساعد في كتالوج بنّاء الكامل ويقترح منتجات جاهزة للإضافة إلى سلتك."
-                : "Describe your project or the product you need. The assistant searches Benna's full catalog and suggests products you can add straight to your cart."}
-            </p>
-          </header>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)_260px]">
             {/* History */}
