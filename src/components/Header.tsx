@@ -17,6 +17,8 @@ const Header = () => {
   const [langOpen, setLangOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const [ordersOpen, setOrdersOpen] = useState(false);
+  const [locOpen, setLocOpen] = useState(false);
+  const [pendingCountry, setPendingCountry] = useState("SA");
   const [pendingLang, setPendingLang] = useState<"en" | "ar">("en");
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +29,7 @@ const Header = () => {
         setLangOpen(false);
         setMsgOpen(false);
         setOrdersOpen(false);
+        setLocOpen(false);
       }
     };
     const onKey = (e: KeyboardEvent) => {
@@ -34,6 +37,7 @@ const Header = () => {
         setLangOpen(false);
         setMsgOpen(false);
         setOrdersOpen(false);
+        setLocOpen(false);
       }
     };
     document.addEventListener("mousedown", onDoc);
@@ -67,12 +71,72 @@ const Header = () => {
 
         {/* Right utilities */}
         <div className="relative flex items-center gap-6 text-[14px] text-ali-ink-700" ref={wrapRef}>
-          <span className="hidden items-center gap-1 md:flex">
+          {/* Deliver-to dropdown — specify your location */}
+          <button
+            type="button"
+            onClick={() => {
+              setLocOpen((v) => !v);
+              setLangOpen(false);
+              setMsgOpen(false);
+              setOrdersOpen(false);
+        setLocOpen(false);
+            }}
+            className="hidden items-center gap-1 md:flex hover:text-ali-ink-900"
+          >
             <MapPin className="h-5 w-5 text-ali-ink-500" />
             {t("Deliver to:", "التوصيل إلى:")}{" "}
             <span className="rounded border border-ali-line-300 px-1 py-0.5 text-[10px] font-medium text-ali-ink-500">SA</span>{" "}
             <span className="font-semibold text-ali-ink-900">SA</span>
-          </span>
+          </button>
+
+          {locOpen && (
+            <div className="absolute start-0 top-full z-50 mt-3 w-[340px] rounded-xl border border-ali-line-200 bg-white p-5 text-start shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+              <h3 className="text-[18px] font-semibold text-ali-ink-900">
+                {t("Specify your location", "حدد موقعك")}
+              </h3>
+              <p className="mt-1 text-[13px] leading-snug text-ali-ink-500">
+                {t(
+                  "Shipping options and fees vary based on your location",
+                  "تختلف خيارات الشحن والرسوم حسب موقعك",
+                )}
+              </p>
+
+              <Link
+                to="/welcome?redirect=/assistant"
+                onClick={() => setLocOpen(false)}
+                className="mt-4 block h-11 w-full rounded-full bg-ali-orange-500 text-center text-[15px] font-semibold leading-[2.75rem] text-white transition-colors hover:bg-ali-orange-600"
+              >
+                {t("Sign in to add address", "سجّل الدخول لإضافة عنوان")}
+              </Link>
+
+              <div className="my-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-ali-line-300" />
+                <span className="text-[12px] text-ali-ink-400">{t("Or", "أو")}</span>
+                <div className="h-px flex-1 bg-ali-line-300" />
+              </div>
+
+              <select
+                value={pendingCountry}
+                onChange={(e) => setPendingCountry(e.target.value)}
+                className="h-11 w-full rounded-lg border-2 border-ali-orange-500 bg-white px-3 text-[14px] text-ali-ink-900 focus:outline-none"
+              >
+                <option value="SA">SA&nbsp;&nbsp;{t("Saudi Arabia", "السعودية")}</option>
+                <option value="AE">AE&nbsp;&nbsp;{t("United Arab Emirates", "الإمارات")}</option>
+                <option value="KW">KW&nbsp;&nbsp;{t("Kuwait", "الكويت")}</option>
+                <option value="QA">QA&nbsp;&nbsp;{t("Qatar", "قطر")}</option>
+                <option value="BH">BH&nbsp;&nbsp;{t("Bahrain", "البحرين")}</option>
+                <option value="OM">OM&nbsp;&nbsp;{t("Oman", "عُمان")}</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={() => setLocOpen(false)}
+                className="mt-4 h-11 w-full rounded-full bg-ali-orange-500 text-[15px] font-semibold text-white transition-colors hover:bg-ali-orange-600"
+              >
+                {t("Save", "حفظ")}
+              </button>
+            </div>
+          )}
 
           {/* Language + currency dropdown */}
           <button
@@ -82,6 +146,7 @@ const Header = () => {
               setLangOpen((v) => !v);
               setMsgOpen(false);
               setOrdersOpen(false);
+        setLocOpen(false);
             }}
             className="hidden items-center gap-1 hover:text-ali-ink-900 md:flex"
           >
@@ -151,6 +216,7 @@ const Header = () => {
               setMsgOpen((v) => !v);
               setLangOpen(false);
               setOrdersOpen(false);
+        setLocOpen(false);
             }}
             className="relative hover:text-ali-ink-900"
             title={t("Messages", "الرسائل")}
@@ -185,6 +251,7 @@ const Header = () => {
               setOrdersOpen((v) => !v);
               setLangOpen(false);
               setMsgOpen(false);
+              setLocOpen(false);
             }}
             className="relative hover:text-ali-ink-900"
             title={t("Orders", "الطلبات")}
