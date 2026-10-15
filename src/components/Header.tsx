@@ -79,7 +79,6 @@ const Header = () => {
               setLangOpen(false);
               setMsgOpen(false);
               setOrdersOpen(false);
-        setLocOpen(false);
             }}
             className="hidden items-center gap-1 md:flex hover:text-ali-ink-900"
           >
