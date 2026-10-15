@@ -150,7 +150,7 @@ const footerLinks = [
       { name: { en: "Benna AI", ar: "بناء الذكي" }, href: "/assistant" },
       {
         name: { en: "AI BOQ", ar: "كمية الأعمال الذكية" },
-        href: "/build-project",
+        href: "https://boq.benna.com.sa/build-project",
       },
       {
         name: { en: "Compare Products", ar: "قارن المنتجات" },

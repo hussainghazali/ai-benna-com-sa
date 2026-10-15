@@ -2,7 +2,7 @@
 // Full-page assistant workspace with conversation history.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
-import { STORE_URL } from "@/lib/store-url";
+import { STORE_URL, storeUrl } from "@/lib/store-url";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AssistantChat from "@/components/assistant/AssistantChat";
@@ -150,7 +150,7 @@ const AssistantPage = () => {
                   {isAr ? "ابدأ محادثة جديدة" : "Start a new conversation"}
                 </button>
                 <a
-                  href={`${STORE_URL}/build-project`}
+                  href={storeUrl("/build-project")}
                   className="inline-flex items-center rounded-full border border-ali-ink-900 px-5 py-2.5 text-sm font-semibold text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
                 >
                   {isAr ? "مولّد BOQ" : "AI BOQ generator"}

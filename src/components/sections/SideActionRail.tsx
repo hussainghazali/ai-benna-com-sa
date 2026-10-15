@@ -1,4 +1,4 @@
-import { CHAT_URL, STORE_URL } from "@/lib/store-url";
+import { CHAT_URL, STORE_URL, storeUrl } from "@/lib/store-url";
 import { Link } from "react-router-dom";
 import {
   ArrowUp,
@@ -72,7 +72,7 @@ const SideActionRail = () => {
         </a>
 
         <a
-          href={`${STORE_URL}/build-project`}
+          href={storeUrl("/build-project")}
           className={itemClass}
           aria-label="Benna BOQ"
         >
