@@ -3,7 +3,7 @@
 // popover / cart / messages popover / orders / Log in on the right.
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Globe, ShoppingCart, MessagesSquare, ClipboardList, User, ChevronDown, Lock, ShieldCheck, RotateCcw, Truck, ClipboardCheck } from "lucide-react";
+import { MapPin, Globe, ShoppingCart, MessagesSquare, ClipboardList, User, ChevronDown, Menu, Lock, ShieldCheck, RotateCcw, Truck, ClipboardCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -199,14 +199,12 @@ const Header = () => {
             </div>
           )}
 
-          <button type="button" onClick={() => setIsCartOpen(true)} className="relative hover:text-ali-ink-900" title={t("Cart", "السلة")}>
+          <a href="https://store.benna.com.sa/cart" className="relative hover:text-ali-ink-900" title={t("Cart", "السلة")} aria-label={t("Cart", "السلة")}>
             <ShoppingCart className="h-5 w-5" />
-            {items.length > 0 && (
-              <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ali-danger text-[10px] font-bold text-white">
-                {items.length}
-              </span>
-            )}
-          </button>
+            <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ali-danger text-[10px] font-bold text-white">
+              {items.length}
+            </span>
+          </a>
 
           {/* Messages dropdown */}
           <button
@@ -340,6 +338,38 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Second nav row — marketplace + company links */}
+      <div className="border-t border-ali-line-200">
+        <div className="mx-auto flex h-10 w-full max-w-[1400px] items-center justify-between px-4 text-[13px]">
+          <nav className="flex items-center gap-5 text-ali-ink-900" aria-label="Marketplace">
+            <a href="https://store.benna.com.sa/categories" className="flex items-center gap-1.5 font-semibold hover:text-ali-orange-500">
+              <Menu className="h-4 w-4" />
+              {t("All Categories", "كل الفئات")}
+              <ChevronDown className="h-3.5 w-3.5" />
+            </a>
+            <a href="https://store.benna.com.sa/top-vendors" className="hover:text-ali-orange-500">
+              {t("Verified Vendors", "موردون معتمدون")}
+            </a>
+            <a href="https://store.benna.com.sa/rfq" className="hover:text-ali-orange-500">
+              {t("RFQ Marketplace", "سوق الطلبات")}
+            </a>
+          </nav>
+          <nav className="flex items-center gap-5 text-ali-ink-700" aria-label="Company">
+            <a href="https://store.benna.com.sa/about" className="hover:text-ali-orange-500">
+              {t("About Benna.com.sa", "عن بنّة")}
+            </a>
+            <a href="https://store.benna.com.sa/help" className="hover:text-ali-orange-500">
+              {t("Help Center", "مركز المساعدة")}
+            </a>
+            <a href="https://store.benna.com.sa/track-order" className="hover:text-ali-orange-500">
+              {t("Track Order", "تتبع الطلب")}
+            </a>
+            <a href="https://store.benna.com.sa/sell" className="hover:text-ali-orange-500">
+              {t("Sell on Benna", "بِع على بنّة")}
+            </a>
+          </nav>
+        </div>
+      </div>
     </header>
   );
 };
