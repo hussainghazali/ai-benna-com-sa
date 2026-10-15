@@ -3,7 +3,7 @@
 // popover / cart / messages popover / orders / Log in on the right.
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Globe, ShoppingCart, MessageCircle, Package, User, ChevronDown, Lock } from "lucide-react";
+import { MapPin, Globe, ShoppingCart, MessageCircle, Package, User, ChevronDown, Lock, ShieldCheck, RotateCcw, Truck, ClipboardCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -16,6 +16,7 @@ const Header = () => {
 
   const [langOpen, setLangOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
+  const [ordersOpen, setOrdersOpen] = useState(false);
   const [pendingLang, setPendingLang] = useState<"en" | "ar">("en");
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -25,12 +26,14 @@ const Header = () => {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
         setLangOpen(false);
         setMsgOpen(false);
+        setOrdersOpen(false);
       }
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setLangOpen(false);
         setMsgOpen(false);
+        setOrdersOpen(false);
       }
     };
     document.addEventListener("mousedown", onDoc);
@@ -77,6 +80,7 @@ const Header = () => {
               setPendingLang(language as "en" | "ar");
               setLangOpen((v) => !v);
               setMsgOpen(false);
+              setOrdersOpen(false);
             }}
             className="hidden items-center gap-1 hover:text-ali-ink-900 md:flex"
           >
@@ -145,6 +149,7 @@ const Header = () => {
             onClick={() => {
               setMsgOpen((v) => !v);
               setLangOpen(false);
+              setOrdersOpen(false);
             }}
             className="relative hover:text-ali-ink-900"
             title={t("Messages", "الرسائل")}
@@ -172,7 +177,76 @@ const Header = () => {
             </div>
           )}
 
-          <Package className="h-6 w-6 cursor-pointer hover:text-ali-ink-900" />
+          {/* Orders dropdown — Trade Assurance panel */}
+          <button
+            type="button"
+            onClick={() => {
+              setOrdersOpen((v) => !v);
+              setLangOpen(false);
+              setMsgOpen(false);
+            }}
+            className="relative hover:text-ali-ink-900"
+            title={t("Orders", "الطلبات")}
+          >
+            <Package className="h-6 w-6" />
+          </button>
+
+          {ordersOpen && (
+            <div className="absolute end-0 top-full z-50 mt-3 w-[320px] rounded-xl border border-ali-line-200 bg-white p-5 text-start shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+              <h3 className="text-[18px] font-semibold text-ali-ink-900">
+                {t("Orders", "الطلبات")}
+              </h3>
+
+              <div className="mt-4 flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ali-orange-100">
+                  <ShieldCheck className="h-6 w-6 text-ali-orange-500" />
+                </div>
+                <div>
+                  <h4 className="text-[15px] font-semibold text-ali-ink-900">
+                    {t("Trade Assurance", "ضمان التجارة")}
+                  </h4>
+                  <p className="mt-0.5 text-[13px] leading-snug text-ali-ink-500">
+                    {t(
+                      "Enjoy protection from payment to delivery",
+                      "استمتع بحماية من الدفع حتى التسليم",
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <ul className="mt-5 space-y-4">
+                {[
+                  { Icon: Lock, label: t("Secure payments", "مدفوعات آمنة") },
+                  {
+                    Icon: RotateCcw,
+                    label: t("Money-back guarantee", "ضمان استرداد الأموال"),
+                  },
+                  {
+                    Icon: Truck,
+                    label: t("Guaranteed on-time delivery", "تسليم مضمون في الموعد"),
+                  },
+                  {
+                    Icon: ClipboardCheck,
+                    label: t("After-sales protections", "حماية ما بعد البيع"),
+                  },
+                ].map(({ Icon, label }) => (
+                  <li key={label} className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ali-orange-100">
+                      <Icon className="h-[18px] w-[18px] text-ali-orange-500" />
+                    </span>
+                    <span className="text-[14px] font-medium text-ali-ink-900">{label}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="https://store.benna.com.sa/order-protection"
+                className="mt-5 inline-block text-[14px] font-medium text-ali-ink-900 underline hover:text-ali-orange-500"
+              >
+                {t("Learn more", "اعرف المزيد")}
+              </a>
+            </div>
+          )}
 
           {isAuthenticated ? (
             <button
