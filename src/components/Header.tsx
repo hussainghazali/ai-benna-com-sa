@@ -201,9 +201,11 @@ const Header = () => {
 
           <a href="https://store.benna.com.sa/cart" className="relative hover:text-ali-ink-900" title={t("Cart", "السلة")} aria-label={t("Cart", "السلة")}>
             <ShoppingCart className="h-5 w-5" />
-            <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ali-danger text-[10px] font-bold text-white">
-              {items.length}
-            </span>
+            {items.length > 0 && (
+              <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ali-danger text-[10px] font-bold text-white">
+                {items.length}
+              </span>
+            )}
           </a>
 
           {/* Messages dropdown */}
