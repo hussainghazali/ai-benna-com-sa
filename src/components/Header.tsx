@@ -150,7 +150,7 @@ const Header = () => {
             className="hidden items-center gap-1 hover:text-ali-ink-900 md:flex"
           >
             <Globe className="h-5 w-5 text-ali-ink-500" />
-            {isRTL ? "English–SAR" : "العربية–ر.س"}
+            {language === "en" ? "English-SAR" : "العربية"}
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
 
