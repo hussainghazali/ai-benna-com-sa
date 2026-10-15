@@ -27,15 +27,16 @@ import {
   Heart,
   CircleUser as UserCircle,
   LogOut,
+  Check,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getProductImage } from "@/utils/imageUtils";
 
 // Where this app's logo / sign-in redirects land.
 const APP_HOME = "/assistant";
 const STORE = "https://store.benna.com.sa";
+const CHAT = "https://chat.benna.com.sa";
 const LOGO_SRC =
   "https://static.wixstatic.com/media/b99a57_66162956ac1345b7b402744d22076d87~mv2.png/v1/fit/w_320,h_128,q_80,enc_avif/image.avif";
 const SIGN_IN = `/welcome?redirect=${APP_HOME}`;
@@ -49,30 +50,138 @@ const SHIP_TO_COUNTRIES = [
   { code: "OM", flag: "🇴🇲", name: "Oman", ar: "عُمان" },
 ];
 
-type PanelId = "ship" | "lang" | "cart" | "chat" | "orders" | "login" | "account";
+type PanelId = "ship" | "lang" | "chat" | "orders" | "login" | "account";
 
-const NATIVE_SELECT =
-  "mt-1.5 h-11 w-full rounded-md border border-ali-line-300 bg-white px-3 text-sm text-ali-ink-900 focus:border-ali-orange-500 focus:outline-none";
+// Storefront brand orange (benna-mobile-app tailwind `ali.orange`): 500 #FF6600,
+// 600 #E65C00. Written as literals so this header matches the store even
+// where the app's own `ali-orange` token differs.
 const PILL_ORANGE =
-  "rounded-full bg-ali-orange-500 text-sm font-bold text-white transition-colors hover:bg-ali-orange-600";
+  "rounded-full bg-[#FF6600] text-sm font-bold text-white transition-colors hover:bg-[#E65C00]";
 const PILL_OUTLINE =
   "flex h-10 w-full items-center justify-center rounded-full border border-ali-ink-900 text-sm font-semibold text-ali-ink-900 transition-colors hover:bg-ali-bg-100";
+
+// Custom dropdown — mirrors the storefront's shadcn <Select> (trigger with
+// chevron, bordered white list, check mark on the selected row).
+const HeaderSelect = ({
+  value,
+  options,
+  onChange,
+  ariaLabel,
+  id,
+  className = "",
+}: {
+  value: string;
+  options: { value: string; label: ReactNode }[];
+  onChange: (v: string) => void;
+  ariaLabel?: string;
+  id?: string;
+  className?: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const wrap = useRef<HTMLDivElement>(null);
+  const selectedIdx = Math.max(0, options.findIndex((o) => o.value === value));
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (wrap.current && !wrap.current.contains(e.target as Node)) setIsOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [isOpen]);
+
+  const openList = () => {
+    setActive(selectedIdx);
+    setIsOpen(true);
+  };
+  const choose = (i: number) => {
+    onChange(options[i].value);
+    setIsOpen(false);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === "Escape" && isOpen) {
+      e.nativeEvent.stopPropagation(); // close the list only, not the whole flyout
+      setIsOpen(false);
+      return;
+    }
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!isOpen) return openList();
+      const d = e.key === "ArrowDown" ? 1 : -1;
+      setActive((i) => (i + d + options.length) % options.length);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (isOpen) choose(active);
+      else openList();
+    }
+  };
+
+  return (
+    <div ref={wrap} className={`relative ${className}`}>
+      <button
+        id={id}
+        type="button"
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-label={ariaLabel}
+        onClick={() => (isOpen ? setIsOpen(false) : openList())}
+        onKeyDown={onKeyDown}
+        className="flex h-11 w-full items-center justify-between rounded-md border border-ali-line-300 bg-white px-3 py-2 text-start text-sm text-ali-ink-900 ring-offset-white focus:outline-none focus:ring-2 focus:ring-[#FF6600] focus:ring-offset-2"
+      >
+        <span className="truncate">{options[selectedIdx]?.label}</span>
+        <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+      </button>
+      {isOpen && (
+        <ul
+          role="listbox"
+          className="absolute left-0 top-full z-50 mt-1 max-h-96 w-full min-w-[8rem] overflow-auto rounded-md border border-[#DDDDDD] bg-white p-1 text-start shadow-md"
+        >
+          {options.map((o, i) => (
+            <li
+              key={o.value}
+              role="option"
+              aria-selected={o.value === value}
+              onMouseEnter={() => setActive(i)}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => choose(i)}
+              className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pe-2 ps-8 text-sm text-ali-ink-900 ${
+                i === active ? "bg-[#FFF0E5]" : ""
+              }`}
+            >
+              {o.value === value && (
+                <span className="absolute start-2 flex h-3.5 w-3.5 items-center justify-center">
+                  <Check className="h-4 w-4" />
+                </span>
+              )}
+              {o.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 // Absolutely-positioned panel under its trigger. The outer wrapper carries
 // top padding so the pointer can travel from trigger to panel without a gap.
 const FlyoutPanel = ({
   align,
   width,
+  gap = "pt-3",
   className = "",
   children,
 }: {
   align: "end" | "center";
   width: string;
+  gap?: string;
   className?: string;
   children: ReactNode;
 }) => (
   <div
-    className={`absolute top-full z-50 pt-3 ${
+    className={`absolute top-full z-50 ${gap} ${
       align === "end"
         ? "end-0"
         : "left-1/2 -translate-x-1/2 rtl:end-0 rtl:left-auto rtl:translate-x-0"
@@ -88,7 +197,7 @@ const FlyoutPanel = ({
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const { itemCount, cartData, setIsCartOpen } = useCart();
+  const { itemCount } = useCart();
   const { isRTL, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const en = language === "en";
@@ -169,7 +278,6 @@ const Header = () => {
 
   const firstName =
     user?.name?.split(" ")[0] || user?.email?.split("@")[0] || (en ? "My account" : "حسابي");
-  const cartProducts = cartData?.products ?? [];
 
   const cartBadge =
     itemCount > 0 ? (
@@ -200,7 +308,7 @@ const Header = () => {
 
   return (
     <header
-      className="sticky top-0 z-50 bg-white"
+      className="sticky top-0 z-[65] bg-white"
       dir={isRTL ? "rtl" : "ltr"}
       role="banner"
       aria-label={en ? "Main site header - Benna" : "رأس الموقع الرئيسي - بناء"}
@@ -235,36 +343,36 @@ const Header = () => {
               className="flex items-center gap-6 text-[15px] font-medium text-ali-ink-700"
             >
               {/* Deliver to */}
-              {isAuthenticated ? (
-                <a
-                  href={`${STORE}/account/addresses`}
+              <div className="relative flex">
+                <button
+                  type="button"
+                  onClick={() => toggle("ship")}
+                  aria-expanded={open === "ship"}
+                  aria-haspopup="dialog"
                   className="flex items-center gap-1.5 transition-colors hover:text-ali-ink-900"
                   aria-label={en ? "Deliver to Saudi Arabia" : "التوصيل إلى السعودية"}
                 >
                   {deliverToInner}
-                </a>
-              ) : (
-                <div className="relative flex">
-                  <button
-                    type="button"
-                    onClick={() => toggle("ship")}
-                    aria-expanded={open === "ship"}
-                    aria-haspopup="dialog"
-                    className="flex items-center gap-1.5 transition-colors hover:text-ali-ink-900"
-                    aria-label={en ? "Deliver to Saudi Arabia" : "التوصيل إلى السعودية"}
-                  >
-                    {deliverToInner}
-                  </button>
-                  {open === "ship" && (
-                    <FlyoutPanel align="end" width="w-[320px]" className="p-5 text-start">
-                      <h3 className="text-base font-bold text-ali-ink-900">
-                        {en ? "Specify your location" : "حدد موقعك"}
-                      </h3>
-                      <p className="mt-1 text-[13px] text-ali-ink-500">
-                        {en
-                          ? "Shipping options and fees vary based on your location"
-                          : "تختلف خيارات الشحن والرسوم حسب موقعك"}
-                      </p>
+                </button>
+                {open === "ship" && (
+                  <FlyoutPanel align="end" width="w-[320px]" gap="pt-1" className="p-5 text-start">
+                    <h3 className="text-base font-bold text-ali-ink-900">
+                      {en ? "Specify your location" : "حدد موقعك"}
+                    </h3>
+                    <p className="mt-1 text-[13px] text-ali-ink-500">
+                      {en
+                        ? "Shipping options and fees vary based on your location"
+                        : "تختلف خيارات الشحن والرسوم حسب موقعك"}
+                    </p>
+                    {isAuthenticated ? (
+                      <a
+                        href={`${STORE}/account/addresses`}
+                        onClick={() => setOpen(null)}
+                        className={`mt-4 flex h-11 items-center justify-center ${PILL_ORANGE}`}
+                      >
+                        {en ? "Manage addresses" : "إدارة العناوين"}
+                      </a>
+                    ) : (
                       <Link
                         to={SIGN_IN}
                         onClick={() => setOpen(null)}
@@ -272,34 +380,36 @@ const Header = () => {
                       >
                         {en ? "Sign in to add address" : "سجّل الدخول لإضافة عنوان"}
                       </Link>
-                      <div className="my-4 flex items-center gap-3 text-xs text-ali-ink-400">
-                        <span className="h-px flex-1 bg-ali-line-300" />
-                        {en ? "Or" : "أو"}
-                        <span className="h-px flex-1 bg-ali-line-300" />
-                      </div>
-                      <select
-                        value={shipToCode}
-                        onChange={(e) => setShipToCode(e.target.value)}
-                        className={NATIVE_SELECT.replace("mt-1.5 ", "")}
-                        aria-label={en ? "Country" : "الدولة"}
-                      >
-                        {SHIP_TO_COUNTRIES.map((c) => (
-                          <option key={c.code} value={c.code}>
-                            {c.flag} {en ? c.name : c.ar}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={handleShipToSave}
-                        className={`mt-4 h-11 w-full ${PILL_ORANGE}`}
-                      >
-                        {en ? "Save" : "حفظ"}
-                      </button>
-                    </FlyoutPanel>
-                  )}
-                </div>
-              )}
+                    )}
+                    <div className="my-4 flex items-center gap-3 text-xs text-ali-ink-400">
+                      <span className="h-px flex-1 bg-ali-line-300" />
+                      {en ? "Or" : "أو"}
+                      <span className="h-px flex-1 bg-ali-line-300" />
+                    </div>
+                    <HeaderSelect
+                      value={shipToCode}
+                      onChange={setShipToCode}
+                      ariaLabel={en ? "Country" : "الدولة"}
+                      options={SHIP_TO_COUNTRIES.map((c) => ({
+                        value: c.code,
+                        label: (
+                          <span className="flex items-center gap-2">
+                            <span aria-hidden="true">{c.flag}</span>
+                            <span>{en ? c.name : c.ar}</span>
+                          </span>
+                        ),
+                      }))}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleShipToSave}
+                      className={`mt-4 h-11 w-full ${PILL_ORANGE}`}
+                    >
+                      {en ? "Save" : "حفظ"}
+                    </button>
+                  </FlyoutPanel>
+                )}
+              </div>
 
               {/* Language + currency */}
               <div className="relative flex">
@@ -319,7 +429,7 @@ const Header = () => {
                   <ChevronDown className="h-3.5 w-3.5 text-ali-ink-400" />
                 </button>
                 {open === "lang" && (
-                  <FlyoutPanel align="end" width="w-[320px]" className="p-5 text-start">
+                  <FlyoutPanel align="end" width="w-[320px]" gap="pt-1" className="p-5 text-start">
                     <h3 className="text-base font-bold text-ali-ink-900">
                       {en ? "Set language and currency" : "تعيين اللغة والعملة"}
                     </h3>
@@ -334,15 +444,16 @@ const Header = () => {
                     >
                       {en ? "Language" : "اللغة"}
                     </label>
-                    <select
+                    <HeaderSelect
                       id="hdr-lang"
+                      className="mt-1.5"
                       value={draftLang}
-                      onChange={(e) => setDraftLang(e.target.value as "en" | "ar")}
-                      className={NATIVE_SELECT}
-                    >
-                      <option value="en">English</option>
-                      <option value="ar">العربية</option>
-                    </select>
+                      onChange={(v) => setDraftLang(v as "en" | "ar")}
+                      options={[
+                        { value: "en", label: "English" },
+                        { value: "ar", label: "العربية" },
+                      ]}
+                    />
                     <label className="mt-3 block text-xs font-semibold text-ali-ink-900">
                       {en ? "Currency" : "العملة"}
                     </label>
@@ -364,138 +475,46 @@ const Header = () => {
                 )}
               </div>
 
-              {/* Cart: hover flyout + click opens drawer */}
-              <div className="relative flex" {...hoverProps("cart")}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpen(null);
-                    setIsCartOpen(true);
-                  }}
-                  className="relative transition-colors hover:text-ali-ink-900"
-                  aria-label={en ? "Open cart" : "فتح السلة"}
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartBadge}
-                </button>
-                {open === "cart" && (
-                  <FlyoutPanel align="center" width="w-[320px]" className="p-5 text-start">
-                    <h3 className="text-sm font-bold text-ali-ink-900">
-                      {en ? "Shopping cart" : "سلة التسوق"}
-                    </h3>
-                    {cartProducts.length === 0 ? (
-                      <div className="flex flex-col items-center py-5 text-center">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-ali-bg-100">
-                          <span className="text-3xl" aria-hidden="true">
-                            📦
-                          </span>
-                        </div>
-                        <p className="mt-3 text-sm font-medium text-ali-ink-900">
-                          {en ? "Your cart is empty" : "سلة التسوق فارغة"}
-                        </p>
-                        <p className="mt-0.5 text-xs text-ali-ink-500">
-                          {en
-                            ? "Add items to your cart to see them here"
-                            : "أضف منتجات إلى سلتك لتظهر هنا"}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpen(null);
-                            setIsCartOpen(true);
-                          }}
-                          className={`mt-4 ${PILL_OUTLINE}`}
-                        >
-                          {en ? "Go to cart" : "الذهاب إلى السلة"}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="pt-3">
-                        <div className="space-y-3">
-                          {cartProducts.slice(0, 3).map((item) => (
-                            <div key={item.productId} className="flex items-center gap-3">
-                              <img
-                                src={getProductImage(item.productImageUrl)}
-                                alt={item.productName}
-                                className="h-12 w-12 rounded-md border border-ali-line-200 bg-white object-contain"
-                                referrerPolicy="no-referrer"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = "/placeholder.svg";
-                                }}
-                              />
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-[13px] text-ali-ink-900">
-                                  {item.productName}
-                                </p>
-                                <p className="text-xs tabular-nums text-ali-ink-500">
-                                  {en ? "Qty" : "الكمية"}: {item.productQuantity}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpen(null);
-                            setIsCartOpen(true);
-                          }}
-                          className={`mt-4 ${PILL_OUTLINE}`}
-                        >
-                          {en
-                            ? `Go to cart (${itemCount})`
-                            : `الذهاب إلى السلة (${itemCount})`}
-                        </button>
-                      </div>
-                    )}
-                  </FlyoutPanel>
-                )}
-              </div>
+              {/* Cart — always the store cart */}
+              <a
+                href={`${STORE}/cart`}
+                className="relative flex transition-colors hover:text-ali-ink-900"
+                aria-label={en ? "Open cart" : "فتح السلة"}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartBadge}
+              </a>
 
-              {/* Messages: hover flyout (signed-out) or direct link (signed-in) */}
-              {isAuthenticated ? (
+              {/* Messages — always the chat app; signed-out also gets the hover hint */}
+              <div className="relative flex" {...(isAuthenticated ? {} : hoverProps("chat"))}>
                 <a
-                  href={`${STORE}/benna-chat`}
+                  href={CHAT}
                   className="transition-colors hover:text-ali-ink-900"
-                  aria-label="Benna Chat"
+                  aria-label={en ? "Messages" : "الرسائل"}
                 >
                   <MessagesSquare className="h-5 w-5" />
                 </a>
-              ) : (
-                <div className="relative flex" {...hoverProps("chat")}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpen(null);
-                      navigate(SIGN_IN);
-                    }}
-                    className="transition-colors hover:text-ali-ink-900"
-                    aria-label={en ? "Messages" : "الرسائل"}
-                  >
-                    <MessagesSquare className="h-5 w-5" />
-                  </button>
-                  {open === "chat" && (
-                    <FlyoutPanel align="center" width="w-[320px]" className="p-5 text-center">
-                      <h3 className="text-start text-sm font-bold text-ali-ink-900">
-                        {en ? "Messages" : "الرسائل"}
-                      </h3>
-                      <p className="mt-3 text-[13px] text-ali-ink-500">
-                        {en ? "Sign in to view more" : "سجّل الدخول لعرض المزيد"}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpen(null);
-                          navigate(SIGN_IN);
-                        }}
-                        className={`mt-4 h-10 w-full ${PILL_ORANGE}`}
-                      >
-                        {en ? "Sign in" : "تسجيل الدخول"}
-                      </button>
-                    </FlyoutPanel>
-                  )}
-                </div>
-              )}
+                {!isAuthenticated && open === "chat" && (
+                  <FlyoutPanel align="center" width="w-[320px]" className="p-5 text-center">
+                    <h3 className="text-start text-sm font-bold text-ali-ink-900">
+                      {en ? "Messages" : "الرسائل"}
+                    </h3>
+                    <p className="mt-3 text-[13px] text-ali-ink-500">
+                      {en ? "Sign in to view more" : "سجّل الدخول لعرض المزيد"}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(null);
+                        navigate(SIGN_IN);
+                      }}
+                      className={`mt-4 h-10 w-full ${PILL_ORANGE}`}
+                    >
+                      {en ? "Sign in" : "تسجيل الدخول"}
+                    </button>
+                  </FlyoutPanel>
+                )}
+              </div>
 
               {/* Orders: hover flyout with Trade Assurance (signed-out) or direct link */}
               {isAuthenticated ? (
@@ -525,8 +544,8 @@ const Header = () => {
                         {en ? "Orders" : "الطلبات"}
                       </h3>
                       <div className="mt-4 flex items-start gap-3">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ali-orange-100">
-                          <ShieldCheck className="h-6 w-6 text-ali-orange-500" />
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF0E5]">
+                          <ShieldCheck className="h-6 w-6 text-[#FF6600]" />
                         </div>
                         <div>
                           <p className="text-[15px] font-semibold text-ali-ink-900">
@@ -547,8 +566,8 @@ const Header = () => {
                           { en: "After-sales protections", ar: "حماية ما بعد البيع", Icon: BadgeCheck },
                         ].map(({ en: label, ar, Icon }) => (
                           <li key={label} className="flex items-center gap-3">
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ali-orange-100">
-                              <Icon className="h-[18px] w-[18px] text-ali-orange-500" />
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0E5]">
+                              <Icon className="h-[18px] w-[18px] text-[#FF6600]" />
                             </span>
                             <span className="font-medium">{en ? label : ar}</span>
                           </li>
@@ -556,7 +575,7 @@ const Header = () => {
                       </ul>
                       <a
                         href={`${STORE}/faqs`}
-                        className="mt-5 inline-block text-sm font-semibold text-ali-ink-900 underline underline-offset-2 transition-colors hover:text-ali-orange-500"
+                        className="mt-5 inline-block text-sm font-semibold text-ali-ink-900 underline underline-offset-2 transition-colors hover:text-[#FF6600]"
                       >
                         {en ? "Learn more" : "اعرف المزيد"}
                       </a>
@@ -580,7 +599,7 @@ const Header = () => {
                   </button>
                   {open === "account" && (
                     <FlyoutPanel align="end" width="w-64" className="overflow-hidden text-start">
-                      <div className="bg-ali-orange-500 px-4 py-3">
+                      <div className="bg-[#FF6600] px-4 py-3">
                         <span className="text-base font-bold text-white">
                           {en ? "Marhaba" : "مرحباً"} {firstName}!
                         </span>
@@ -688,7 +707,7 @@ const Header = () => {
                                 <Link
                                   to={SIGN_IN}
                                   onClick={() => setOpen(null)}
-                                  className="block w-full py-1.5 text-start transition-colors hover:text-ali-orange-500"
+                                  className="block w-full py-1.5 text-start transition-colors hover:text-[#FF6600]"
                                 >
                                   {en ? item.en : item.ar}
                                 </Link>
@@ -737,19 +756,18 @@ const Header = () => {
               <Globe className="h-5 w-5" />
               {en ? "العربية" : "English"}
             </button>
-            <button
-              type="button"
+            <a
+              href={`${STORE}/cart`}
               className="relative p-2"
-              onClick={() => setIsCartOpen(true)}
               aria-label={en ? "Open cart" : "فتح السلة"}
             >
               <ShoppingCart className="h-6 w-6" />
               {itemCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-ali-orange-500 text-xs font-bold text-white">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF6600] text-xs font-bold text-white">
                   {itemCount}
                 </span>
               )}
-            </button>
+            </a>
             {isAuthenticated ? (
               <button
                 type="button"
