@@ -14,7 +14,7 @@ import {
   deleteAssistantThread,
   type AssistantThreadSummary,
 } from "@/lib/api-assistant";
-import { Sparkles, MessageSquare, Trash2, Hammer, FileText } from "lucide-react";
+import { Sparkles, MessageSquare, Trash2 } from "lucide-react";
 
 const AssistantPage = () => {
   const { language } = useLanguage();
@@ -101,20 +101,20 @@ const AssistantPage = () => {
       {/* ── Hero Band — full-bleed peach bg, centered content (matches BOQ page) ── */}
       <div className="bg-ali-orange-100/60">
         <div className="mx-auto w-full max-w-[1400px] px-4 lg:px-6 xl:px-8">
-          <div className="py-10 sm:py-14">
-            <h1 className="text-[34px] sm:text-[40px] font-bold leading-tight tracking-tight text-ali-ink-900">
+          <div className="py-8 sm:py-10">
+            <h1 className="text-[26px] sm:text-[30px] font-bold leading-tight tracking-tight text-ali-ink-900">
               {isAr ? (
                 <>بنّة <span className="text-ali-orange-500">رقم ١ لمساعد التوريد الذكي</span></>
               ) : (
                 <>Benna's <span className="text-ali-orange-500">#1 AI sourcing assistant</span></>
               )}
             </h1>
-            <p className="mt-2 text-[15px] sm:text-base text-ali-ink-500">
+            <p className="mt-1.5 text-[14px] text-ali-ink-500">
               {isAr
                 ? "صِف مشروعك · احصل على منتجات مطابقة · أضفها مباشرة إلى سلتك"
                 : "Describe your project · Get matching products · Add straight to your cart"}
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -122,20 +122,20 @@ const AssistantPage = () => {
                   if (threadId) navigate("/assistant");
                   void loadThreads();
                 }}
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-ali-orange-500 px-7 text-[15px] font-semibold text-white transition-colors hover:bg-ali-orange-600"
+                className="inline-flex h-10 items-center gap-2 rounded-full bg-ali-orange-500 px-5 text-[13px] font-semibold text-white transition-colors hover:bg-ali-orange-600"
               >
                 <Sparkles className="h-4 w-4" />
                 {isAr ? "محادثة جديدة" : "Start a new conversation"}
               </button>
               <a
                 href="https://store.benna.com.sa/build-project"
-                className="inline-flex h-11 items-center rounded-full border border-ali-ink-900 bg-white px-7 text-[15px] font-semibold text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
+                className="inline-flex h-10 items-center rounded-full border border-ali-ink-900 bg-white px-5 text-[13px] font-semibold text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
               >
                 {isAr ? "منشئ قوائم الكميات" : "AI BOQ generator"}
               </a>
               <a
                 href="https://store.benna.com.sa/rfq"
-                className="text-[15px] font-medium text-ali-ink-900 hover:text-ali-orange-500"
+                className="text-[13px] font-medium text-ali-ink-900 hover:text-ali-orange-500"
               >
                 {isAr ? "سوق طلبات العروض" : "RFQ marketplace"}
               </a>
@@ -153,7 +153,7 @@ const AssistantPage = () => {
                 { v: "24/7", l: isAr ? "متاح دائماً" : "ALWAYS AVAILABLE" },
               ].map((s) => (
                 <div key={s.l} className="flex items-baseline gap-2">
-                  <span className="text-[26px] font-bold text-ali-ink-900">{s.v}</span>
+                  <span className="text-[22px] font-bold text-ali-ink-900">{s.v}</span>
                   <span className="text-[11px] font-medium uppercase tracking-wide text-ali-ink-500">
                     {s.l}
                   </span>
@@ -167,7 +167,7 @@ const AssistantPage = () => {
       <main className="flex-1">
         <div className="mx-auto w-full max-w-[1400px] px-4 py-6 lg:px-6 xl:px-8">
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)_260px]">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
             {/* History */}
             <aside className="order-2 lg:order-1">
               <div className="rounded-[6px] border border-border bg-card">
@@ -258,48 +258,6 @@ const AssistantPage = () => {
               </div>
             </section>
 
-            {/* Handoffs */}
-            <aside className="order-3 space-y-3">
-              <Link
-                to="/build-project"
-                className="block rounded-[6px] border border-border bg-card p-4 transition-colors hover:border-primary/40"
-              >
-                <Hammer className="h-4 w-4 text-primary" />
-                <h2 className="mt-2 text-[13px] font-normal text-foreground">
-                  {isAr ? "جدول الكميات (BOQ)" : "Bill of Quantities"}
-                </h2>
-                <p className="mt-1 text-[12px] text-muted-foreground">
-                  {isAr
-                    ? "احسب كميات المواد لمشروعك بالكامل وأضفها إلى السلة."
-                    : "Calculate material quantities for a full project and add them to your cart."}
-                </p>
-              </Link>
-              <Link
-                to="/rfqs"
-                className="block rounded-[6px] border border-border bg-card p-4 transition-colors hover:border-primary/40"
-              >
-                <FileText className="h-4 w-4 text-primary" />
-                <h2 className="mt-2 text-[13px] font-normal text-foreground">
-                  {isAr ? "طلبات عروض الأسعار" : "RFQ Marketplace"}
-                </h2>
-                <p className="mt-1 text-[12px] text-muted-foreground">
-                  {isAr
-                    ? "انشر كمياتك ودع الموردين يتنافسون على السعر."
-                    : "Post your quantities and let suppliers bid on price."}
-                </p>
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setNewChatKey((k) => k + 1);
-                  if (threadId) navigate("/assistant");
-                  void loadThreads();
-                }}
-                className="w-full rounded-[4px] border border-border px-3 py-2 text-[12px] text-foreground hover:bg-muted"
-              >
-                {isAr ? "محادثة جديدة" : "Start a new conversation"}
-              </button>
-            </aside>
           </div>
         </div>
       </main>
