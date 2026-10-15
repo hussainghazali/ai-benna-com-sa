@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import BennaLoader from "@/components/BennaLoader";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -13,8 +14,8 @@ const WelcomePage = lazy(() => import("@/pages/WelcomePage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 
 const Fallback = () => (
-  <div className="flex min-h-screen items-center justify-center text-muted-foreground">
-    Loading…
+  <div className="flex min-h-screen items-center justify-center">
+    <BennaLoader size="md" />
   </div>
 );
 
