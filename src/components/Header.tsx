@@ -3,7 +3,7 @@
 // popover / cart / messages popover / orders / Log in on the right.
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Globe, ShoppingCart, MessagesSquare, ClipboardList, User, ChevronDown, Menu, Lock, ShieldCheck, RotateCcw, Truck, ClipboardCheck } from "lucide-react";
+import { MapPin, Globe, ShoppingCart, MessagesSquare, ClipboardList, User, ChevronDown, Lock, ShieldCheck, RotateCcw, Truck, ClipboardCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -225,21 +225,37 @@ const Header = () => {
 
           {msgOpen && (
             <div className="absolute end-0 top-full z-50 mt-3 w-[340px] rounded-xl border border-ali-line-200 bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
-              <h3 className="text-[18px] font-semibold text-ali-ink-900">
-                {t("Messages", "الرسائل")}
-              </h3>
-              <p className="mt-8 mb-8 text-center text-[14px] text-ali-ink-500">
+              <h3 className="text-[16px] font-semibold text-ali-ink-900">
                 {isAuthenticated
-                  ? t("No messages yet", "لا توجد رسائل بعد")
-                  : t("Sign in to view more", "سجّل الدخول للعرض")}
-              </p>
-              <Link
-                to={isAuthenticated ? "/assistant" : "/welcome?redirect=/assistant"}
-                onClick={() => setMsgOpen(false)}
-                className="block h-12 w-full rounded-full bg-ali-orange-500 text-center text-[15px] font-semibold leading-[3rem] text-white transition-colors hover:bg-ali-orange-600"
-              >
-                {isAuthenticated ? t("Open messages", "فتح الرسائل") : t("Sign in", "تسجيل الدخول")}
-              </Link>
+                  ? t("Messages", "الرسائل")
+                  : t("Sign back in to continue", "سجّل الدخول للمتابعة")}
+              </h3>
+              {isAuthenticated ? (
+                <p className="mt-6 text-center text-[14px] text-ali-ink-500">
+                  {t("No messages yet", "لا توجد رسائل بعد")}
+                </p>
+              ) : (
+                <>
+                  <Link
+                    to="/welcome"
+                    onClick={() => setMsgOpen(false)}
+                    className="mt-4 block h-11 w-full rounded-full bg-ali-orange-500 text-center text-[15px] font-semibold leading-[2.75rem] text-white transition-colors hover:bg-ali-orange-600"
+                  >
+                    {t("Sign in", "تسجيل الدخول")}
+                  </Link>
+                  <p className="mt-4 text-[12px] leading-relaxed text-ali-ink-500">
+                    {t("By signing in, I agree to the BENNA", "بتسجيل الدخول، أوافق على بنّة")}{" "}
+                    <a href="https://store.benna.com.sa/terms" className="underline">
+                      {t("Terms of Use", "شروط الاستخدام")}
+                    </a>{" "}
+                    {t("and", "و")}{" "}
+                    <a href="https://store.benna.com.sa/privacy" className="underline">
+                      {t("Privacy Policy", "سياسة الخصوصية")}
+                    </a>
+                    .
+                  </p>
+                </>
+              )}
             </div>
           )}
 
@@ -340,38 +356,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Second nav row — marketplace + company links */}
-      <div className="border-t border-ali-line-200">
-        <div className="mx-auto flex h-10 w-full max-w-[1400px] items-center justify-between px-4 text-[13px]">
-          <nav className="flex items-center gap-5 text-ali-ink-900" aria-label="Marketplace">
-            <a href="https://store.benna.com.sa/categories" className="flex items-center gap-1.5 font-semibold hover:text-ali-orange-500">
-              <Menu className="h-4 w-4" />
-              {t("All Categories", "كل الفئات")}
-              <ChevronDown className="h-3.5 w-3.5" />
-            </a>
-            <a href="https://store.benna.com.sa/top-vendors" className="hover:text-ali-orange-500">
-              {t("Verified Vendors", "موردون معتمدون")}
-            </a>
-            <a href="https://store.benna.com.sa/rfq" className="hover:text-ali-orange-500">
-              {t("RFQ Marketplace", "سوق الطلبات")}
-            </a>
-          </nav>
-          <nav className="flex items-center gap-5 text-ali-ink-700" aria-label="Company">
-            <a href="https://store.benna.com.sa/about" className="hover:text-ali-orange-500">
-              {t("About Benna.com.sa", "عن بنّة")}
-            </a>
-            <a href="https://store.benna.com.sa/help" className="hover:text-ali-orange-500">
-              {t("Help Center", "مركز المساعدة")}
-            </a>
-            <a href="https://store.benna.com.sa/track-order" className="hover:text-ali-orange-500">
-              {t("Track Order", "تتبع الطلب")}
-            </a>
-            <a href="https://store.benna.com.sa/sell" className="hover:text-ali-orange-500">
-              {t("Sell on Benna", "بِع على بنّة")}
-            </a>
-          </nav>
-        </div>
-      </div>
     </header>
   );
 };
