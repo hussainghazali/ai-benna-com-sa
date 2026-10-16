@@ -20,7 +20,7 @@ const AssistantBubble = () => {
     <div className="pointer-events-none fixed inset-0 z-[9999]" dir={isAr ? "rtl" : "ltr"}>
       <Link
         to="/assistant"
-        className="pointer-events-auto absolute bottom-[152px] end-4 flex h-12 items-center gap-2 rounded-full bg-primary px-4 text-[13px] font-medium text-primary-foreground shadow-lg transition-transform hover:scale-[1.03] md:bottom-[104px]"
+        className="pointer-events-auto absolute bottom-[152px] start-4 flex h-12 items-center gap-2 rounded-full bg-ali-orange-500 px-4 text-[13px] font-medium text-white shadow-lg transition-transform hover:scale-[1.03] hover:bg-ali-orange-600 md:bottom-[104px] xl:hidden"
         aria-label={isAr ? "المساعد الذكي" : "Ask Benna AI"}
       >
         <Sparkles className="h-4 w-4" />

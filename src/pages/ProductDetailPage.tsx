@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import BennaLoader from "@/components/BennaLoader";
 import { Link, useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -95,7 +96,9 @@ const ProductDetailPage = () => {
         </Link>
 
         {loading ? (
-          <p className="text-[14px] text-muted-foreground">Loading…</p>
+          <div className="flex justify-center py-16">
+            <BennaLoader size="md" />
+          </div>
         ) : !product ? (
           <div className="rounded-[8px] border border-border bg-card p-10 text-center">
             <p className="text-[15px] text-foreground">

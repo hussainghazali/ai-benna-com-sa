@@ -1,20 +1,18 @@
-import { useState } from "react";
+import { CHAT_URL, STORE_URL, storeUrl } from "@/lib/store-url";
 import { Link } from "react-router-dom";
 import {
   ArrowUp,
-  Camera,
   FileText,
   MessageSquare,
   Sparkles,
   Wand2,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ComingSoonModal from "@/components/ComingSoonModal";
 
 /**
  * Alibaba-style fixed side rail — a vertical stack of quick actions pinned to
  * the left edge of the viewport: Messenger,
- * Benna AI, WhatsApp, Benna BOQ, Benna Lens (image search), RFQ, Back to Top.
+ * Benna AI, WhatsApp, Benna BOQ, RFQ, Back to Top.
  * Design reference: docs/ALIBABA-DESIGN-SYSTEM.md §4.5 (z-index, drawer tier).
  */
 
@@ -27,22 +25,20 @@ const labelClass =
 const SideActionRail = () => {
   const { language } = useLanguage();
   const isAr = language === "ar";
-  const [lensOpen, setLensOpen] = useState(false);
-
   return (
     <>
       <nav
         aria-label={isAr ? "إجراءات سريعة" : "Quick actions"}
         className="fixed bottom-24 left-3 z-[60] hidden w-[68px] flex-col divide-y divide-ali-line-200 overflow-hidden rounded-xl border border-ali-line-200 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] xl:flex"
       >
-        <Link
-          to="/chat"
+        <a
+          href={CHAT_URL}
           className={itemClass}
           aria-label={isAr ? "الرسائل" : "Messenger"}
         >
           <MessageSquare className="h-5 w-5" aria-hidden="true" />
           <span className={labelClass}>{isAr ? "الرسائل" : "Messenger"}</span>
-        </Link>
+        </a>
 
         <Link
           to="/assistant"
@@ -75,33 +71,21 @@ const SideActionRail = () => {
           <span className={labelClass}>WhatsApp</span>
         </a>
 
-        <Link
-          to="/build-project"
+        <a
+          href={storeUrl("/build-project")}
           className={itemClass}
           aria-label="Benna BOQ"
         >
           <Wand2 className="h-5 w-5" aria-hidden="true" />
           <span className={labelClass}>{isAr ? "بنّا BOQ" : "Benna BOQ"}</span>
-        </Link>
+        </a>
 
-        <button
-          type="button"
-          onClick={() => setLensOpen(true)}
-          className={itemClass}
-          aria-label={isAr ? "عدسة بنّا" : "Benna Lens"}
-        >
-          <Camera className="h-5 w-5" aria-hidden="true" />
-          <span className={labelClass}>
-            {isAr ? "عدسة بنّا" : "Benna Lens"}
-          </span>
-        </button>
-
-        <Link to="/rfq" className={itemClass} aria-label="Benna RFQ">
+        <a href={`${STORE_URL}/rfq`} className={itemClass} aria-label="Benna RFQ">
           <FileText className="h-5 w-5" aria-hidden="true" />
           <span className={labelClass}>
             {isAr ? "بنّا RFQ" : "Benna RFQ"}
           </span>
-        </Link>
+        </a>
 
         <button
           type="button"
@@ -116,12 +100,6 @@ const SideActionRail = () => {
         </button>
       </nav>
 
-      <ComingSoonModal
-        open={lensOpen}
-        onOpenChange={setLensOpen}
-        featureIcon={Camera}
-        featureName={{ en: "Benna Lens", ar: "عدسة بنّة" }}
-      />
     </>
   );
 };

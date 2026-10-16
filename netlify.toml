@@ -1,0 +1,18 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # These VITE_* values are intentionally public: Vite inlines them into the browser bundle
+  # (the x-api-key is the backend's public client key), so secrets scanning must not fail on them.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_API_URL,VITE_API_KEY"
+  # Smart detection flags the public x-api-key (a random-looking string) in the client bundle.
+  # Standard scanning above still checks every other environment variable value.
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
+# SPA fallback is also in public/_redirects
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

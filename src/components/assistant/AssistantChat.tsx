@@ -3,19 +3,18 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Send,
+  ArrowUp,
   Square,
   RotateCcw,
   Sparkles,
   AlertTriangle,
   Hammer,
   FileText,
-  ShoppingCart,
 } from "lucide-react";
 import { useAssistant } from "@/hooks/useAssistant";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
+import { storeUrl } from "@/lib/store-url";
 import { useVendorChat } from "@/hooks/useVendorChat";
 import AssistantProductCard from "./AssistantProductCard";
 import BennaLoader from "@/components/BennaLoader";
@@ -61,7 +60,6 @@ const AssistantChat = ({
   const { language } = useLanguage();
   const isAr = language === "ar";
   const { isAuthenticated } = useAuth();
-  const { addToCart, setIsCartOpen } = useCart();
   const {
     messages,
     threadId,
@@ -106,7 +104,6 @@ const AssistantChat = ({
 
 
   const [input, setInput] = useState("");
-  const [bulkBusy, setBulkBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const suggestions = isAr ? SUGGESTIONS_AR : SUGGESTIONS_EN;
@@ -133,40 +130,22 @@ const AssistantChat = ({
     void send(value);
   };
 
-  const addAll = async () => {
-    const items = lastProducts.filter((p) => !p.isRFQ && p.inStock);
-    if (!items.length || bulkBusy) return;
-    setBulkBusy(true);
-    for (const p of items) {
-      await addToCart({
-        productId: String(p.productId),
-        productName: p.name,
-        uniqueProductSlug: p.slug,
-        productPrice: p.effectivePrice || p.price,
-        productQuantity: 1,
-        productImageUrl: p.image || "/placeholder.svg",
-        vendorId: String(p.vendorId || ""),
-      } as never);
-    }
-    setBulkBusy(false);
-    setIsCartOpen(true);
-  };
 
   if (!isAuthenticated) {
     return (
       <div className={`flex flex-col items-center justify-center gap-3 p-8 text-center ${className}`}>
-        <Sparkles className="h-7 w-7 text-primary" />
-        <h2 className="text-[15px] font-normal text-foreground">
+        <Sparkles className="h-7 w-7 text-ali-orange-500" />
+        <h2 className="text-[15px] font-normal text-ali-ink-900">
           {isAr ? "سجّل الدخول لاستخدام المساعد" : "Sign in to use the assistant"}
         </h2>
-        <p className="max-w-xs text-[13px] text-muted-foreground">
+        <p className="max-w-xs text-[13px] text-ali-ink-500">
           {isAr
-            ? "المساعد الذكي يبحث في كتالوج بنّاء ويضيف المنتجات إلى سلتك مباشرة."
-            : "The AI assistant searches Benna's catalog and adds products straight to your cart."}
+            ? "المساعد الذكي يبحث في كتالوج بنّاء ويعرض لك المنتجات المطابقة مباشرة."
+            : "The AI assistant searches Benna's catalog and shows you matching products straight away."}
         </p>
         <Link
           to="/login"
-          className="rounded-[4px] bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground hover:opacity-90"
+          className="rounded-lg bg-ali-orange-500 px-4 py-2 text-[13px] font-medium text-white hover:opacity-90"
         >
           {isAr ? "تسجيل الدخول" : "Sign in"}
         </Link>
@@ -184,27 +163,27 @@ const AssistantChat = ({
         }`}
       >
         {!messages.length ? (
-          <div className="space-y-4">
-            <div className="rounded-[6px] border border-border bg-card p-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <h3 className="text-[14px] font-normal text-foreground">
-                  {isAr ? "مساعد المشتريات من بنّاء" : "Benna Procurement Assistant"}
-                </h3>
-              </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-                {isAr
-                  ? "اوصف ما تحتاجه — منتج، ماركة، ميزانية، أو مشروع كامل — وسأجد المنتجات المناسبة من كتالوج بنّاء وأضيفها إلى سلتك."
-                  : "Describe what you need — a product, a brand, a budget, or a whole project — and I'll find matching products from Benna's catalog and add them to your cart."}
-              </p>
+          <div className="flex min-h-full flex-col items-center justify-center px-2 py-10 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ali-orange-100 shadow-card">
+              <Sparkles className="h-6 w-6 text-ali-orange-500" />
             </div>
-            <div className="space-y-2">
+            <h3 className="mt-4 text-[18px] font-semibold text-ali-ink-900">
+              {isAr
+                ? "ما الذي تحتاجه لمشروعك؟"
+                : "What do you need for your project?"}
+            </h3>
+            <p className="mt-1 max-w-md text-[13px] leading-relaxed text-ali-ink-500">
+              {isAr
+                ? "اوصف منتجًا، ماركة، ميزانية، أو مشروعًا كاملًا — وسأجد المنتجات المناسبة من كتالوج بنّاء وأعرضها لك لتفتحها في متجر بنّة."
+                : "Describe a product, a brand, a budget, or a whole project — I'll find matching products from Benna's catalog and link you to them in the Benna store."}
+            </p>
+            <div className="mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-2">
               {suggestions.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => submit(s)}
-                  className="w-full rounded-[6px] border border-border bg-background px-3 py-2 text-start text-[13px] text-foreground transition-colors hover:border-primary/40 hover:bg-muted"
+                  className="rounded-full border border-ali-line-200 bg-white px-4 py-2 text-[13px] text-ali-ink-700 shadow-card transition-colors hover:border-ali-orange-500 hover:text-ali-orange-500"
                 >
                   {s}
                 </button>
@@ -217,20 +196,20 @@ const AssistantChat = ({
           <div key={m.id} className="space-y-3">
             {m.role === "user" ? (
               <div className="flex justify-end">
-                <div className="max-w-[85%] rounded-[6px] bg-primary px-3 py-2 text-[13px] leading-relaxed text-primary-foreground">
+                <div className="max-w-[85%] rounded-xl bg-ali-orange-500 px-3 py-2 text-[13px] leading-relaxed text-white">
                   {m.content}
                 </div>
               </div>
             ) : (
               <div className="space-y-3">
                 {m.content ? (
-                  <div className="max-w-[92%] whitespace-pre-wrap rounded-[6px] border border-border bg-card px-3 py-2 text-[13px] leading-relaxed text-foreground">
+                  <div className="max-w-[92%] whitespace-pre-wrap rounded-xl border border-ali-line-200 bg-white px-3 py-2 text-[13px] leading-relaxed text-ali-ink-900">
                     {m.content}
                   </div>
                 ) : null}
 
                 {m.error ? (
-                  <div className="flex items-start gap-2 rounded-[6px] border border-destructive/30 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
+                  <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
                     <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     <span>{m.error}</span>
                   </div>
@@ -252,21 +231,21 @@ const AssistantChat = ({
                 {m.links?.length ? (
                   <div className="flex flex-wrap gap-2">
                     {m.links.map((l) => (
-                      <Link
+                      <a
                         key={l.href}
-                        to={l.href}
-                        className="rounded-[4px] border border-border px-2.5 py-1.5 text-[12px] text-foreground hover:bg-muted"
+                        href={storeUrl(l.href)}
+                        className="rounded-lg border border-ali-line-200 px-2.5 py-1.5 text-[12px] text-ali-ink-900 hover:bg-ali-bg-100"
                       >
                         {isAr && l.labelAr ? l.labelAr : l.label}
-                      </Link>
+                      </a>
                     ))}
                   </div>
                 ) : null}
 
                 {m.handoff ? (
-                  <Link
-                    to={m.handoff.href}
-                    className="inline-flex items-center gap-2 rounded-[4px] border border-primary/30 bg-primary/5 px-3 py-2 text-[12px] font-medium text-primary hover:bg-primary/10"
+                  <a
+                    href={storeUrl(m.handoff.href)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-ali-orange-500/40 bg-ali-orange-100 px-3 py-2 text-[12px] font-medium text-ali-orange-500 hover:bg-ali-orange-100"
                   >
                     {m.handoff.action === "boq" ? (
                       <Hammer className="h-3.5 w-3.5" />
@@ -280,7 +259,7 @@ const AssistantChat = ({
                       : isAr
                         ? "انشر طلب عرض سعر"
                         : "Post an RFQ"}
-                  </Link>
+                  </a>
                 ) : null}
               </div>
             )}
@@ -288,43 +267,28 @@ const AssistantChat = ({
         ))}
 
         {isStreaming && stage !== "idle" ? (
-          <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
+          <div className="flex items-center gap-3 text-[12px] text-ali-ink-500">
             <BennaLoader size="sm" />
             <span>{STAGE_LABEL[stage][isAr ? "ar" : "en"]}</span>
           </div>
         ) : null}
 
         {limitReached ? (
-          <div className="space-y-2 rounded-[6px] border border-primary/30 bg-primary/5 p-3">
-            <p className="text-[13px] text-foreground">{limitReached}</p>
-            <Link
-              to="/build-project?credits=1"
-              className="inline-block rounded-[4px] bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground hover:opacity-90"
+          <div className="space-y-2 rounded-xl border border-ali-orange-500/40 bg-ali-orange-100 p-3">
+            <p className="text-[13px] text-ali-ink-900">{limitReached}</p>
+            <a
+              href={storeUrl("/build-project?credits=1")}
+              className="inline-block rounded-lg bg-ali-orange-500 px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90"
             >
               {isAr ? "شراء رصيد" : "Add credits"}
-            </Link>
+            </a>
           </div>
         ) : null}
       </div>
 
-      {/* Bulk add */}
-      {lastProducts.filter((p) => !p.isRFQ && p.inStock).length > 1 ? (
-        <div className="border-t border-border px-4 py-2">
-          <button
-            type="button"
-            onClick={addAll}
-            disabled={bulkBusy}
-            className="flex w-full items-center justify-center gap-2 rounded-[4px] border border-border bg-background px-3 py-2 text-[12px] font-medium text-foreground hover:bg-muted disabled:opacity-50"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            {isAr ? "أضف كل المقترحات إلى السلة" : "Add all suggestions to cart"}
-          </button>
-        </div>
-      ) : null}
-
       {/* Composer */}
-      <div className="border-t border-border p-3">
-        <div className="flex items-end gap-2">
+      <div className="border-t border-ali-line-200 bg-white p-3">
+        <div className="flex items-end gap-2 rounded-2xl border border-ali-line-200 bg-ali-bg-100/50 px-3 py-2 transition-colors focus-within:border-ali-orange-500 focus-within:bg-white">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -337,15 +301,17 @@ const AssistantChat = ({
             rows={1}
             maxLength={2000}
             placeholder={
-              isAr ? "ما الذي تحتاجه لمشروعك؟" : "What do you need for your project?"
+              isAr
+                ? "اسأل عن أي مادة بناء…"
+                : "Ask me anything about building materials…"
             }
-            className="max-h-28 min-h-[40px] flex-1 resize-none rounded-[4px] border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/50"
+            className="max-h-28 min-h-[36px] flex-1 resize-none border-none bg-transparent px-1 py-1.5 text-[13px] text-ali-ink-900 outline-none placeholder:text-ali-ink-400"
           />
           {isStreaming ? (
             <button
               type="button"
               onClick={stop}
-              className="flex h-10 w-10 items-center justify-center rounded-[4px] border border-border text-foreground hover:bg-muted"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ali-line-200 bg-white text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
               aria-label={isAr ? "إيقاف" : "Stop"}
             >
               <Square className="h-4 w-4" />
@@ -355,15 +321,15 @@ const AssistantChat = ({
               type="button"
               onClick={() => submit()}
               disabled={!input.trim()}
-              className="flex h-10 w-10 items-center justify-center rounded-[4px] bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ali-orange-500 text-white transition-colors hover:bg-ali-orange-600 disabled:bg-ali-line-300 disabled:text-ali-ink-400"
               aria-label={isAr ? "إرسال" : "Send"}
             >
-              <Send className="h-4 w-4" />
+              <ArrowUp className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="mt-2 flex items-center justify-between text-[11px] text-ali-ink-500">
           <span>
             {quota
               ? quota.unlimited
@@ -379,7 +345,7 @@ const AssistantChat = ({
             <button
               type="button"
               onClick={reset}
-              className="flex items-center gap-1 hover:text-foreground"
+              className="flex items-center gap-1 hover:text-ali-ink-900"
             >
               <RotateCcw className="h-3 w-3" />
               {isAr ? "محادثة جديدة" : "New chat"}

@@ -38,42 +38,42 @@ export default function BennaLoader({
       <div className='relative w-full h-full preserve-3d animate-cube-spin'>
         
         {/* Internal Core (The energy source) */}
-        <div className='absolute inset-0 m-auto w-1/3 h-1/3 bg-white rounded-full blur-md shadow-[0_0_40px_rgba(255,255,255,0.8)] animate-pulse-fast' />
+        <div className='absolute inset-0 m-auto w-1/3 h-1/3 bg-[#FFF0E5] rounded-full blur-md shadow-[0_0_40px_rgba(255,102,0,0.8)] animate-pulse-fast' />
 
         {/* CUBE FACES */}
         {/* Front */}
         <div className='side-wrapper front'>
-          <div className='face bg-cyan-500/10 border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4)]' />
+          <div className='face bg-[rgba(230,92,0,0.1)] border-2 border-[#E65C00] shadow-[0_0_15px_rgba(230,92,0,0.4)]' />
         </div>
-        
+
         {/* Back */}
         <div className='side-wrapper back'>
-          <div className='face bg-cyan-500/10 border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4)]' />
+          <div className='face bg-[rgba(230,92,0,0.1)] border-2 border-[#E65C00] shadow-[0_0_15px_rgba(230,92,0,0.4)]' />
         </div>
 
         {/* Right */}
         <div className='side-wrapper right'>
-          <div className='face bg-ali-orange-500/10 border-2 border-ali-orange-500 shadow-[0_0_15px_rgba(250,100,0,0.4)]' />
+          <div className='face bg-[rgba(255,102,0,0.1)] border-2 border-[#FF6600] shadow-[0_0_15px_rgba(255,102,0,0.4)]' />
         </div>
 
         {/* Left */}
         <div className='side-wrapper left'>
-          <div className='face bg-ali-orange-500/10 border-2 border-ali-orange-500 shadow-[0_0_15px_rgba(250,100,0,0.4)]' />
+          <div className='face bg-[rgba(255,102,0,0.1)] border-2 border-[#FF6600] shadow-[0_0_15px_rgba(255,102,0,0.4)]' />
         </div>
 
         {/* Top */}
         <div className='side-wrapper top'>
-          <div className='face bg-indigo-500/10 border-2 border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' />
+          <div className='face bg-[rgba(250,173,20,0.1)] border-2 border-[#FAAD14] shadow-[0_0_15px_rgba(250,173,20,0.4)]' />
         </div>
 
         {/* Bottom */}
         <div className='side-wrapper bottom'>
-          <div className='face bg-indigo-500/10 border-2 border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' />
+          <div className='face bg-[rgba(250,173,20,0.1)] border-2 border-[#FAAD14] shadow-[0_0_15px_rgba(250,173,20,0.4)]' />
         </div>
       </div>
 
       {/* Floor Shadow */}
-      <div className='absolute -bottom-20 w-full h-8 bg-black/40 blur-xl rounded-[100%] animate-shadow-breathe' />
+      <div className='absolute -bottom-20 w-full h-8 bg-[rgba(255,102,0,0.25)] blur-xl rounded-[100%] animate-shadow-breathe' />
     </div>
   )
 
@@ -227,10 +227,10 @@ export default function BennaLoader({
       {cube}
       {label && (
         <div className='flex flex-col items-center gap-1'>
-          <h3 className='text-sm font-semibold tracking-[0.3em] text-cyan-300 uppercase'>
+          <h3 className='text-sm font-semibold tracking-[0.3em] text-ali-orange-500 uppercase'>
             {t("Loading", "جاري التحميل")}
           </h3>
-          <p className='text-xs text-slate-400'>
+          <p className='text-xs text-ali-ink-500'>
             {label}
           </p>
         </div>
