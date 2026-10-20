@@ -5,6 +5,7 @@
 import { API_URL } from "@/config/env";
 import { getAccessToken } from "./auth-session";
 import { apiClient, unwrap } from "./api-client";
+import type { BennaMessage, Resolution } from "@/hooks/useAssistant";
 
 const BASE = (API_URL || "https://vendor.benna.com.sa/api").replace(/\/+$/, "");
 const PUBLIC_KEY = import.meta.env.VITE_API_KEY;
@@ -239,6 +240,8 @@ export async function fetchAssistantThread(threadId: string): Promise<{
   title: string;
   lang: "en" | "ar";
   turns: AssistantTurn[];
+  messages: BennaMessage[];
+  resolutions: Resolution[];
 } | null> {
   const res = await apiClient<any>(
     `/users/website/assistant/threads/${encodeURIComponent(threadId)}`,

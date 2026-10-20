@@ -8,6 +8,8 @@
     --foreground: 240 10% 12%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 12%;
     --primary: 24 100% 49%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 96%;
@@ -22,6 +24,7 @@
     --input: 240 6% 90%;
     --ring: 24 100% 49%;
     --radius: 0.5rem;
+    --shadow-card: rgba(23, 23, 23, 0.06) 0px 3px 6px 0px;
   }
 }
 

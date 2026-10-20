@@ -49,8 +49,8 @@ const AssistantPage = () => {
       ? "المساعد الذكي للمشتريات | بنّاء"
       : "AI Procurement Assistant | Benna",
     description: isAr
-      ? "اسأل مساعد بنّاء الذكي عن مواد البناء التي تحتاجها، واحصل على منتجات مطابقة من أكثر من 182,000 منتج وافتحها مباشرة في متجر بنّة."
-      : "Ask Benna's AI assistant what materials you need and get matching products from 182,000+ building materials, one click from the Benna store.",
+      ? "اسأل مساعد بنّاء عن مواد البناء والموردين والعلامات التجارية من أكثر من 184,267 منتج و1,085 فئة و95 موردًا."
+      : "Ask Benna about building materials, suppliers and brands across 184,267+ products, 1,085+ categories and 95+ vendors.",
   });
 
   const loadThreads = useCallback(async () => {
@@ -282,6 +282,7 @@ const AssistantPage = () => {
                   variant="page"
                   className="h-full"
                   initialThreadId={threadId || null}
+                  onNewConversation={startNewConversation}
                   onThreadChange={(id) => {
                     ownThreadsRef.current.add(id);
                     if (id !== threadId) navigate(`/assistant/${id}`, { replace: true });
