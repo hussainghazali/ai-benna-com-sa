@@ -1,373 +1,126 @@
-// src/components/assistant/AssistantChat.tsx
-// Shared chat surface used by both the floating bubble and the /assistant page.
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowUp,
-  Square,
-  RotateCcw,
-  Sparkles,
-  AlertTriangle,
-  Hammer,
-  FileText,
-} from "lucide-react";
+import { storeUrl } from "@/lib/store-url";
+import { useAuthUrl } from "@/hooks/useAuthUrl";
+import { ArrowUp, AlertTriangle, Building2, Copy, ThumbsUp, ThumbsDown, ShoppingCart, Plus, Check, LayoutGrid, FileText, Calculator, Camera } from "lucide-react";
+import { isToolUIPart } from "ai";
 import { useAssistant } from "@/hooks/useAssistant";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { storeUrl } from "@/lib/store-url";
+import { useCart } from "@/contexts/CartContext";
 import { useVendorChat } from "@/hooks/useVendorChat";
+import { apiClient } from "@/lib/api-client";
+import { Button } from "@/components/ui/button";
+import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { PromptInput, PromptInputTextarea, PromptInputFooter, PromptInputSubmit } from "@/components/ai-elements/prompt-input";
+import { Tool, ToolHeader, ToolContent, ToolOutput } from "@/components/ai-elements/tool";
+import { Shimmer } from "@/components/ai-elements/shimmer";
 import AssistantProductCard from "./AssistantProductCard";
 import BennaLoader from "@/components/BennaLoader";
 import type { AssistantProduct } from "@/lib/api-assistant";
-
 const ChatManager = lazy(() => import("@/components/ChatManager"));
-
-
-const SUGGESTIONS_EN = [
-  "White cement for a 200 sqm villa",
-  "Porcelain floor tiles under 60 SAR/sqm",
-  "PPR pipes and fittings 32mm",
-  "I need a full material list for a 2-floor villa",
-];
-const SUGGESTIONS_AR = [
-  "أسمنت أبيض لفيلا 200 متر مربع",
-  "بلاط بورسلان أرضيات أقل من 60 ريال/م²",
-  "مواسير وتوصيلات PPR مقاس 32 مم",
-  "أحتاج قائمة مواد كاملة لفيلا من طابقين",
-];
-
-const STAGE_LABEL = {
-  understanding: { en: "Understanding your request…", ar: "جاري فهم طلبك…" },
-  searching: { en: "Searching 182,000+ products…", ar: "جاري البحث في أكثر من 182,000 منتج…" },
-  answering: { en: "Preparing recommendations…", ar: "جاري تجهيز التوصيات…" },
-};
-
-interface Props {
-  variant?: "panel" | "page";
-  className?: string;
-  /** Existing conversation to restore on mount. */
-  initialThreadId?: string | null;
-  /** Fired when this conversation gets (or changes) its server thread id. */
-  onThreadChange?: (threadId: string) => void;
-}
-
-const AssistantChat = ({
-  variant = "panel",
-  className = "",
-  initialThreadId = null,
-  onThreadChange,
-}: Props) => {
+interface Props { variant?: "panel" | "page"; className?: string; initialThreadId?: string | null; onThreadChange?: (id: string) => void; onNewConversation?: () => void }
+const TOOL_LABELS: Record<string, [string, string]> = { search_products: ["Product search", "البحث عن المنتجات"], get_product: ["Product specifications", "مواصفات المنتج"], search_categories: ["Categories", "الفئات"], search_brands: ["Brands", "العلامات التجارية"], find_vendors: ["Suppliers", "الموردون"], search_knowledge: ["Benna sources", "مصادر بنّاء"], report_unresolved: ["Question review", "مراجعة السؤال"] };
+export default function AssistantChat({ className = "", initialThreadId, onThreadChange, onNewConversation }: Props) {
   const { language } = useLanguage();
   const isAr = language === "ar";
   const { isAuthenticated } = useAuth();
-  const {
-    messages,
-    threadId,
-    stage,
-    isStreaming,
-    quota,
-    limitReached,
-    send,
-    stop,
-    reset,
-    loadThread,
-  } = useAssistant({ lang: isAr ? "ar" : "en" });
-
+  const loginUrl = useAuthUrl("/login");
+  const { addToCart, setIsCartOpen } = useCart();
+  const chat = useAssistant({ lang: isAr ? "ar" : "en", initialThreadId, onThreadChange });
   const vendorChat = useVendorChat();
-
-  const openVendorChat = (p: AssistantProduct) => {
-    vendorChat.openChat({
-      id: String(p.productId),
-      name: p.name,
-      vendorId: String(p.vendorId || ""),
-      image: p.image,
-      price: p.effectivePrice || p.price,
-    });
-  };
-
-  // Restore a previously saved conversation once, on mount only. Later thread
-  // id changes come from this very chat and must not reload/reset it.
-  const restoredRef = useRef(false);
-  useEffect(() => {
-    if (restoredRef.current) return;
-    restoredRef.current = true;
-    if (initialThreadId) void loadThread(initialThreadId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-
-  // Surface a newly created thread id so the page can update its URL/history.
-  useEffect(() => {
-    if (threadId && threadId !== initialThreadId) onThreadChange?.(threadId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threadId]);
-
-
   const [input, setInput] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const suggestions = isAr ? SUGGESTIONS_AR : SUGGESTIONS_EN;
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages, stage]);
-
-  const lastProducts = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i -= 1) {
-      const p = messages[i].products;
-      if (p && p.length) return p;
-    }
-    return [];
-  }, [messages]);
-
-  const submit = (text?: string) => {
-    const value = (text ?? input).trim();
-    if (!value) return;
-    setInput("");
-    void send(value);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+  const textarea = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => { if (!chat.loading && !chat.isStreaming && !document.querySelector('[role="dialog"]')) textarea.current?.focus(); }, [chat.loading, chat.isStreaming, chat.threadId]);
+  const lastProducts = useMemo(() => [...chat.messages].reverse().find(m => m.metadata?.products?.length)?.metadata?.products || [], [chat.messages]);
+  const openVendorChat = (p: AssistantProduct) => vendorChat.openChat({ id: String(p.productId), name: p.name, vendorId: String(p.vendorId), image: p.image, price: p.effectivePrice || p.price });
+  const send = async (value: string) => { if (!value.trim() || chat.isStreaming) return; setInput(""); await chat.send(value); textarea.current?.focus(); };
+  const addAll = async () => {
+    if (bulkBusy) return;
+    const items = lastProducts.filter(p => !p.isRFQ && p.inStock);
+    if (!window.confirm(isAr ? `إضافة ${items.length} منتجات إلى السلة؟` : `Add ${items.length} products to your cart?`)) return;
+    setBulkBusy(true);
+    try { for (const p of items) await addToCart({ productId: String(p.productId), productName: p.name, uniqueProductSlug: p.slug, productPrice: p.effectivePrice || p.price, productQuantity: 1, productImageUrl: p.image || "/placeholder.svg", vendorId: String(p.vendorId) } as never); setIsCartOpen(true); }
+    catch { setActionError(isAr ? "تعذرت إضافة بعض المنتجات." : "Some products could not be added."); } finally { setBulkBusy(false); }
   };
+  const rate = async (messageId: string, value: "useful" | "not_useful") => {
+    if (!chat.threadId) return;
+    try { await apiClient(`/users/website/assistant/threads/${encodeURIComponent(chat.threadId)}/feedback`, { method: "POST", body: JSON.stringify({ messageId, value }) }); setFeedback(p => ({ ...p, [messageId]: value })); }
+    catch { setActionError(isAr ? "تعذر حفظ التقييم." : "Feedback could not be saved."); }
+  };
+  if (!isAuthenticated) return <div className={`flex h-full flex-col items-center justify-center gap-4 p-8 text-center ${className}`}><Building2 className="h-10 w-10 text-primary" /><h2 className="text-lg">{isAr ? "مساعد بنّاء" : "Benna Assistant"}</h2><Button asChild><Link to={loginUrl}>{isAr ? "تسجيل الدخول" : "Sign in"}</Link></Button></div>;
+  return <div className={`flex h-full min-h-0 flex-col bg-background text-foreground ${className}`} dir={isAr ? "rtl" : "ltr"}>
+    <Conversation className="min-h-0 flex-1">
+      <ConversationContent className="gap-6 px-4 py-6 md:px-6">
+        {chat.loading ? <BennaLoader size="sm" /> : null}
+        {!chat.messages.length && !chat.loading && !chat.loadError ? <div className="flex flex-col items-center gap-5 py-10 text-center"><Building2 className="h-10 w-10 text-primary" /><h2 className="text-2xl font-light">{isAr ? "ماذا تحتاج لمشروعك؟" : "What does your project need?"}</h2><div className="flex max-w-xl flex-wrap justify-center gap-2">{(isAr ? ["قارن البورسلان والسيراميك", "ابحث عن مورد للأسمنت", "كيف أختار عازل السطح؟"] : ["Compare porcelain and ceramic tiles", "Find cement suppliers", "How should I waterproof a roof?"]).map(q => <Button key={q} variant="outline" className="h-auto whitespace-normal text-start" onClick={() => void send(q)}>{q}</Button>)}</div></div> : null}
+        {chat.messages.map(m => <Message key={m.id} from={m.role} className={m.role === "user" ? "ms-auto me-0" : "max-w-full"}>
+          <MessageContent className={m.role === "user" ? "group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground max-w-[90%]" : "w-full max-w-full"}>
+            {m.parts.map((p, i) => {
+              if (p.type === "text") return <MessageResponse key={i} className="break-words text-sm leading-7" isAnimating={chat.isStreaming && m.id === chat.messages.at(-1)?.id}>{p.text}</MessageResponse>;
+              if (p.type === "reasoning") return <details key={i} className="text-xs text-muted-foreground"><summary>{isAr ? "التفكير" : "Thinking"}</summary><MessageResponse>{p.text}</MessageResponse></details>;
+              if (isToolUIPart(p)) { const name = p.type === "dynamic-tool" ? p.toolName : p.type.replace(/^tool-/, ""); return <Tool key={i} defaultOpen={false}>{p.type === "dynamic-tool" ? <ToolHeader type="dynamic-tool" toolName={p.toolName} state={p.state} title={TOOL_LABELS[name]?.[isAr ? 1 : 0] || name} /> : <ToolHeader type={p.type} state={p.state} title={TOOL_LABELS[name]?.[isAr ? 1 : 0] || name} />}<ToolContent><ToolOutput output={p.output} errorText={p.errorText} /></ToolContent></Tool>; }
+              return null;
+            })}
+          </MessageContent>
+          {m.metadata?.products?.length ? <div className="grid min-w-0 gap-2">{m.metadata.products.map(p => <AssistantProductCard key={p.productId} product={p} onChat={openVendorChat} />)}</div> : null}
+          {m.metadata?.sources?.length ? <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">{m.metadata.sources.map(s => <a className="text-primary underline underline-offset-4" key={s.href} href={storeUrl(s.href)}>{s.title}</a>)}</div> : null}
+          {m.role === "assistant" && !chat.isStreaming ? <div className="flex items-center gap-1"><Button size="icon-sm" variant="ghost" title={isAr ? "نسخ" : "Copy answer"} aria-label="Copy answer" onClick={async () => { try { await navigator.clipboard.writeText(m.parts.filter(p => p.type === "text").map(p => p.text).join("\n")); setCopied(m.id); } catch { setActionError("Could not copy answer."); } }}>{copied === m.id ? <Check /> : <Copy />}</Button><Button size="icon-sm" variant="ghost" title={isAr ? "مفيد" : "Useful"} aria-label="Useful" onClick={() => void rate(m.id, "useful")} className={feedback[m.id] === "useful" ? "text-primary" : ""}><ThumbsUp /></Button><Button size="icon-sm" variant="ghost" title={isAr ? "غير مفيد" : "Not useful"} aria-label="Not useful" onClick={() => void rate(m.id, "not_useful")} className={feedback[m.id] === "not_useful" ? "text-destructive" : ""}><ThumbsDown /></Button>{feedback[m.id] === "not_useful" ? <span className="text-xs text-muted-foreground">{isAr ? "حُفظ السؤال للمراجعة" : "Question saved for review"}</span> : null}</div> : null}
+          {m.metadata?.unresolved ? <p className="text-xs text-muted-foreground">{isAr ? "سؤال بحاجة إلى مراجعة. تحقق من المحادثة لاحقًا." : "This question needs review. Check this conversation for updates."}</p> : null}
+          {m.role === "assistant" && !(chat.isStreaming && m.id === chat.messages.at(-1)?.id) && needsNextSteps(m) ? <NextSteps isAr={isAr} /> : null}
+        </Message>)}
+        {chat.resolutions.map(r => <div key={r.messageId} className="border-s-2 border-primary ps-4"><p className="mb-2 text-xs font-medium text-primary">{isAr ? "إجابة تمت مراجعتها" : "Reviewed answer"}</p><h3 className="mb-2 font-medium">{r.publicQuestion}</h3><MessageResponse>{r.draft}</MessageResponse><div className="mt-2 flex flex-wrap gap-3">{r.sources.map(s => <Link key={s.href} to={s.href} className="text-xs text-primary underline">{s.title}</Link>)}</div></div>)}
+        {chat.status === "submitted" ? <Shimmer>{isAr ? "جاري التفكير…" : "Thinking…"}</Shimmer> : null}
+        {chat.error || chat.loadError || actionError ? <div role="alert" className="flex items-start gap-2 text-sm text-destructive"><AlertTriangle className="h-4 w-4 shrink-0" /><span>{chat.loadError || actionError || readableError(chat.error?.message)}</span></div> : null}
+      </ConversationContent><ConversationScrollButton aria-label={isAr ? "آخر الرسائل" : "Latest messages"} />
+    </Conversation>
+    {ENABLE_BULK_ADD && lastProducts.filter(p => !p.isRFQ && p.inStock).length > 1 ? <div className="border-t border-border px-4 py-2"><Button variant="outline" className="w-full" onClick={() => void addAll()} disabled={bulkBusy}><ShoppingCart />{isAr ? "إضافة المقترحات للسلة" : "Add suggestions to cart"}</Button></div> : null}
+    <div className="border-t border-border p-3">
+      <PromptInput onSubmit={({ text }) => send(text || input)}><PromptInputTextarea ref={textarea} value={input} onChange={e => setInput(e.target.value)} maxLength={2000} disabled={chat.loading || !!chat.loadError} placeholder={isAr ? "اسأل مساعد بنّاء…" : "Ask Benna…"} className="min-h-16 max-h-40 text-base" /><PromptInputFooter className="justify-end"><PromptInputSubmit status={chat.status} onStop={() => void chat.stop()} disabled={!chat.isStreaming && (!input.trim() || chat.loading || !!chat.loadError)} aria-label={chat.isStreaming ? "Stop" : "Send"} className="h-9 w-9 shrink-0">{!chat.isStreaming ? <ArrowUp className="h-4 w-4" /> : undefined}</PromptInputSubmit></PromptInputFooter></PromptInput>
+      <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground"><span>{chat.quota ? chat.quota.unlimited ? isAr ? "رسائل غير محدودة" : "Unlimited messages" : isAr ? `${chat.quota.freeRemaining} مجانية اليوم · ${chat.quota.creditBalance ?? 0} رصيد` : `${chat.quota.freeRemaining} free today · ${chat.quota.creditBalance ?? 0} credits` : ""}</span>{onNewConversation ? <Button variant="ghost" size="icon-sm" aria-label="New conversation" title={isAr ? "محادثة جديدة" : "New conversation"} onClick={onNewConversation}><Plus /></Button> : null}</div>
+    </div>
+    {vendorChat.showChat && vendorChat.openChats.length ? <Suspense fallback={null}><ChatManager openChats={vendorChat.openChats} activeChatId={vendorChat.activeChatId} setActiveChatId={vendorChat.setActiveChatId} setOpenChats={vendorChat.setOpenChats} setShowChat={vendorChat.setShowChat} /></Suspense> : null}
+  </div>;
+}
 
+// Service errors can arrive as raw JSON; show only the human sentence.
+function readableError(raw?: string) {
+  if (!raw) return raw;
+  try { const parsed = JSON.parse(raw); if (typeof parsed?.message === "string") return parsed.message; } catch { /* plain text */ }
+  return raw;
+}
 
-  if (!isAuthenticated) {
-    return (
-      <div className={`flex flex-col items-center justify-center gap-3 p-8 text-center ${className}`}>
-        <Sparkles className="h-7 w-7 text-ali-orange-500" />
-        <h2 className="text-[15px] font-normal text-ali-ink-900">
-          {isAr ? "سجّل الدخول لاستخدام المساعد" : "Sign in to use the assistant"}
-        </h2>
-        <p className="max-w-xs text-[13px] text-ali-ink-500">
-          {isAr
-            ? "المساعد الذكي يبحث في كتالوج بنّاء ويعرض لك المنتجات المطابقة مباشرة."
-            : "The AI assistant searches Benna's catalog and shows you matching products straight away."}
-        </p>
-        <Link
-          to="/login"
-          className="rounded-lg bg-ali-orange-500 px-4 py-2 text-[13px] font-medium text-white hover:opacity-90"
-        >
-          {isAr ? "تسجيل الدخول" : "Sign in"}
-        </Link>
-      </div>
-    );
-  }
+// When the assistant can't fully answer, always give shoppers a clear way forward.
+// ai.benna.com.sa has no checkout of its own (header cart = store cart), so the
+// "Add all to cart" button would only fill a local cart nobody can check out.
+// Products open on the store instead. Flip to true if this site ever gets a real cart.
+const ENABLE_BULK_ADD = false;
 
+const NEXT_STEPS = [
+  { href: "/products", icon: LayoutGrid, en: "Browse all products", ar: "تصفح كل المنتجات" },
+  { href: "/rfqs", icon: FileText, en: "Publish an RFQ for a quote", ar: "انشر طلب عرض سعر" },
+  { href: "/build-project", icon: Calculator, en: "Create a BOQ", ar: "أنشئ جدول كميات" },
+  { href: "/", icon: Camera, en: "Search by image or voice", ar: "ابحث بالصورة أو الصوت" },
+];
+function needsNextSteps(m: { metadata?: { unresolved?: boolean; products?: unknown[] }; parts: { type: string }[] }) {
+  if (m.metadata?.unresolved) return true;
+  const searched = m.parts.some(p => p.type === "tool-search_products" || p.type === "tool-get_product");
+  return searched && !m.metadata?.products?.length;
+}
+function NextSteps({ isAr }: { isAr: boolean }) {
   return (
-    <div className={`flex h-full min-h-0 flex-col ${className}`}>
-      {/* Messages */}
-      <div
-        ref={scrollRef}
-        className={`min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 ${
-          variant === "page" ? "md:px-6" : ""
-        }`}
-      >
-        {!messages.length ? (
-          <div className="flex min-h-full flex-col items-center justify-center px-2 py-10 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ali-orange-100 shadow-card">
-              <Sparkles className="h-6 w-6 text-ali-orange-500" />
-            </div>
-            <h3 className="mt-4 text-[18px] font-semibold text-ali-ink-900">
-              {isAr
-                ? "ما الذي تحتاجه لمشروعك؟"
-                : "What do you need for your project?"}
-            </h3>
-            <p className="mt-1 max-w-md text-[13px] leading-relaxed text-ali-ink-500">
-              {isAr
-                ? "اوصف منتجًا، ماركة، ميزانية، أو مشروعًا كاملًا — وسأجد المنتجات المناسبة من كتالوج بنّاء وأعرضها لك لتفتحها في متجر بنّة."
-                : "Describe a product, a brand, a budget, or a whole project — I'll find matching products from Benna's catalog and link you to them in the Benna store."}
-            </p>
-            <div className="mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-2">
-              {suggestions.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => submit(s)}
-                  className="rounded-full border border-ali-line-200 bg-white px-4 py-2 text-[13px] text-ali-ink-700 shadow-card transition-colors hover:border-ali-orange-500 hover:text-ali-orange-500"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {messages.map((m) => (
-          <div key={m.id} className="space-y-3">
-            {m.role === "user" ? (
-              <div className="flex justify-end">
-                <div className="max-w-[85%] rounded-xl bg-ali-orange-500 px-3 py-2 text-[13px] leading-relaxed text-white">
-                  {m.content}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {m.content ? (
-                  <div className="max-w-[92%] whitespace-pre-wrap rounded-xl border border-ali-line-200 bg-white px-3 py-2 text-[13px] leading-relaxed text-ali-ink-900">
-                    {m.content}
-                  </div>
-                ) : null}
-
-                {m.error ? (
-                  <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
-                    <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    <span>{m.error}</span>
-                  </div>
-                ) : null}
-
-                {m.products?.length ? (
-                  <div className="space-y-2">
-                    {m.products.map((p) => (
-                      <AssistantProductCard
-                        key={p.productId}
-                        product={p}
-                        onChat={openVendorChat}
-                      />
-
-                    ))}
-                  </div>
-                ) : null}
-
-                {m.links?.length ? (
-                  <div className="flex flex-wrap gap-2">
-                    {m.links.map((l) => (
-                      <a
-                        key={l.href}
-                        href={storeUrl(l.href)}
-                        className="rounded-lg border border-ali-line-200 px-2.5 py-1.5 text-[12px] text-ali-ink-900 hover:bg-ali-bg-100"
-                      >
-                        {isAr && l.labelAr ? l.labelAr : l.label}
-                      </a>
-                    ))}
-                  </div>
-                ) : null}
-
-                {m.handoff ? (
-                  <a
-                    href={storeUrl(m.handoff.href)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-ali-orange-500/40 bg-ali-orange-100 px-3 py-2 text-[12px] font-medium text-ali-orange-500 hover:bg-ali-orange-100"
-                  >
-                    {m.handoff.action === "boq" ? (
-                      <Hammer className="h-3.5 w-3.5" />
-                    ) : (
-                      <FileText className="h-3.5 w-3.5" />
-                    )}
-                    {m.handoff.action === "boq"
-                      ? isAr
-                        ? "أنشئ جدول كميات كامل"
-                        : "Generate a full BOQ"
-                      : isAr
-                        ? "انشر طلب عرض سعر"
-                        : "Post an RFQ"}
-                  </a>
-                ) : null}
-              </div>
-            )}
-          </div>
+    <div className="grid gap-2">
+      <p className="text-xs text-muted-foreground">{isAr ? "يمكنك أيضًا:" : "You can also:"}</p>
+      <div className="flex flex-wrap gap-2">
+        {NEXT_STEPS.map(({ href, icon: Icon, en, ar }) => (
+          <Button key={href} asChild size="sm" variant="outline"><a href={storeUrl(href)}><Icon />{isAr ? ar : en}</a></Button>
         ))}
-
-        {isStreaming && stage !== "idle" ? (
-          <div className="flex items-center gap-3 text-[12px] text-ali-ink-500">
-            <BennaLoader size="sm" />
-            <span>{STAGE_LABEL[stage][isAr ? "ar" : "en"]}</span>
-          </div>
-        ) : null}
-
-        {limitReached ? (
-          <div className="space-y-2 rounded-xl border border-ali-orange-500/40 bg-ali-orange-100 p-3">
-            <p className="text-[13px] text-ali-ink-900">{limitReached}</p>
-            <a
-              href={storeUrl("/build-project?credits=1")}
-              className="inline-block rounded-lg bg-ali-orange-500 px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90"
-            >
-              {isAr ? "شراء رصيد" : "Add credits"}
-            </a>
-          </div>
-        ) : null}
       </div>
-
-      {/* Composer */}
-      <div className="border-t border-ali-line-200 bg-white p-3">
-        <div className="flex items-end gap-2 rounded-2xl border border-ali-line-200 bg-ali-bg-100/50 px-3 py-2 transition-colors focus-within:border-ali-orange-500 focus-within:bg-white">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                submit();
-              }
-            }}
-            rows={1}
-            maxLength={2000}
-            placeholder={
-              isAr
-                ? "اسأل عن أي مادة بناء…"
-                : "Ask me anything about building materials…"
-            }
-            className="max-h-28 min-h-[36px] flex-1 resize-none border-none bg-transparent px-1 py-1.5 text-[13px] text-ali-ink-900 outline-none placeholder:text-ali-ink-400"
-          />
-          {isStreaming ? (
-            <button
-              type="button"
-              onClick={stop}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ali-line-200 bg-white text-ali-ink-900 transition-colors hover:bg-ali-bg-100"
-              aria-label={isAr ? "إيقاف" : "Stop"}
-            >
-              <Square className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => submit()}
-              disabled={!input.trim()}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ali-orange-500 text-white transition-colors hover:bg-ali-orange-600 disabled:bg-ali-line-300 disabled:text-ali-ink-400"
-              aria-label={isAr ? "إرسال" : "Send"}
-            >
-              <ArrowUp className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        <div className="mt-2 flex items-center justify-between text-[11px] text-ali-ink-500">
-          <span>
-            {quota
-              ? quota.unlimited
-                ? isAr
-                  ? "رسائل غير محدودة"
-                  : "Unlimited messages"
-                : isAr
-                  ? `${quota.freeRemaining} رسالة مجانية اليوم · ${quota.creditBalance ?? 0} رصيد`
-                  : `${quota.freeRemaining} free messages today · ${quota.creditBalance ?? 0} credits`
-              : ""}
-          </span>
-          {messages.length ? (
-            <button
-              type="button"
-              onClick={reset}
-              className="flex items-center gap-1 hover:text-ali-ink-900"
-            >
-              <RotateCcw className="h-3 w-3" />
-              {isAr ? "محادثة جديدة" : "New chat"}
-            </button>
-          ) : null}
-        </div>
-      </div>
-
-      {vendorChat.showChat && vendorChat.openChats.length > 0 ? (
-        <Suspense fallback={null}>
-          <ChatManager
-            openChats={vendorChat.openChats}
-            activeChatId={vendorChat.activeChatId}
-            setActiveChatId={vendorChat.setActiveChatId}
-            setOpenChats={vendorChat.setOpenChats}
-            setShowChat={vendorChat.setShowChat}
-          />
-        </Suspense>
-      ) : null}
     </div>
   );
-};
-
-
-export default AssistantChat;
+}
